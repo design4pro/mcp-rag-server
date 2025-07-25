@@ -1,3 +1,14 @@
+---
+title: installation-guide
+type: note
+permalink: docs/02-installation/installation-guide
+tags:
+- '[''installation'''
+- '''setup'''
+- configuration'
+- '''obsidian-compatible'']'
+---
+
 # Installation Guide
 
 ## Prerequisites
@@ -196,20 +207,20 @@ VECTOR_SIZE=384  # Instead of 768
 1. **Check Logs**: Look for detailed error messages in console output
 2. **Verify Configuration**: Ensure all environment variables are set correctly
 3. **Test Individual Services**: Run service-specific tests
-4. **Check Documentation**: Review [[API Reference]] and [[Configuration Guide]]
+4. **Check Documentation**: Review [[../03-api/api-reference|API Reference]] and [[../01-architecture/system-architecture|Configuration Guide]]
 
 ## Next Steps
 
 After successful installation:
 
-1. **Read the Documentation**: Start with [[Project Overview]]
-2. **Run Examples**: Try the [[Basic Usage Example]]
-3. **Explore Features**: Check out [[Feature Guide]]
-4. **Start Developing**: Follow the [[Development Guide]]
+1. **Read the Documentation**: Start with [[../00-overview/project-overview|Project Overview]]
+2. **Run Examples**: Try the [[../03-api/api-reference|Basic Usage Example]]
+3. **Explore Features**: Check out [[../04-development/development-phases|Feature Guide]]
+4. **Start Developing**: Follow the [[../04-development/development-phases|Development Guide]]
 
 ## Related Documentation
 
-- [[Configuration Guide]]
-- [[Development Guide]]
-- [[API Reference]]
-- [[Troubleshooting Guide]]
+- [[../01-architecture/system-architecture|Configuration Guide]]
+- [[../04-development/development-phases|Development Guide]]
+- [[../03-api/api-reference|API Reference]]
+- [[../05-troubleshooting/troubleshooting-guide|Troubleshooting Guide]]

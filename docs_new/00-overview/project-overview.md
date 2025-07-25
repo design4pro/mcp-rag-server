@@ -16,16 +16,19 @@ The MCP RAG Server is a comprehensive Retrieval-Augmented Generation (RAG) solut
 ## Technology Stack
 
 ### Core Technologies
+
 - **Python 3.9+**: Main programming language
 - **MCP (Model Context Protocol)**: Standardized AI application interface
 - **FastMCP**: High-performance MCP server implementation
 
 ### AI & ML Services
+
 - **Google Gemini API**: Text generation and embedding creation
 - **Qdrant**: Vector database for similarity search
 - **Mem0**: Memory layer for conversation context
 
 ### Development Tools
+
 - **Pydantic**: Data validation and settings management
 - **Pytest**: Testing framework
 - **Black & Ruff**: Code formatting and linting
@@ -56,30 +59,33 @@ The MCP RAG Server follows a modular architecture with clear separation of conce
 ## Use Cases
 
 ### Document Management
+
 - Store and index documents with metadata
 - Semantic search across document collections
 - Document versioning and management
 
 ### Question Answering
+
 - RAG-based question answering with document context
 - Personalized responses based on user history
 - Multi-turn conversations with memory
 
 ### Knowledge Management
+
 - Build knowledge bases from various document sources
 - Intelligent document retrieval and ranking
 - Context-aware information access
 
 ## Getting Started
 
-See [[docs/03-development/installation-guide.md|Installation Guide]] for detailed setup instructions.
+See [[02-installation/installation-guide|Installation Guide]] for detailed setup instructions.
 
 ## Development Status
 
-The project follows a phased development approach with comprehensive documentation in the `docs/04-features/` directory:
+The project follows a phased development approach:
 
 - **Phase 1**: ✅ Foundation (Completed)
-  - [[docs/04-features/phase1-foundations/README.md|Documentation]]
+
   - Project structure and dependencies
   - Basic MCP server implementation
   - Configuration management
@@ -87,7 +93,7 @@ The project follows a phased development approach with comprehensive documentati
   - Qdrant service implementation
 
 - **Phase 2**: ✅ RAG Core (Completed)
-  - [[docs/04-features/phase2-rag-core/README.md|Documentation]]
+
   - Document ingestion pipeline
   - Embedding generation service
   - Vector storage and retrieval
@@ -95,7 +101,7 @@ The project follows a phased development approach with comprehensive documentati
   - RAG query pipeline
 
 - **Phase 3**: ✅ MCP Integration (Completed)
-  - [[docs/04-features/phase3-mcp-integration/README.md|Documentation]]
+
   - Document management tools
   - Search and query tools
   - Memory management tools
@@ -103,23 +109,22 @@ The project follows a phased development approach with comprehensive documentati
   - Validation and error handling
 
 - **Phase 4**: 🔄 Memory Integration (25% Complete)
-  - [[docs/04-features/phase4-memory-integration/README.md|Documentation]]
-  - [[docs/04-features/phase4-memory-integration/implementation-plan.md|Implementation Plan]]
-  - Memory-aware RAG queries
-  - User session management
-  - Advanced memory context retrieval
+
+  - ✅ Basic mem0 service integration
+  - ✅ Memory storage infrastructure
+  - ✅ Basic memory CRUD operations
+  - 🔄 Memory-aware RAG queries (In Progress)
+  - ⏳ User session management (Pending)
+  - ⏳ Advanced memory context retrieval (Pending)
 
 - **Phase 5**: ⏳ Advanced Features (Planned)
-  - [[docs/04-features/phase5-advanced-features/README.md|Documentation]]
   - Advanced document processing
   - Performance monitoring
   - Production features
 
-**Complete Phase Overview**: [[docs/04-features/project-phases-overview.md|Project Phases Overview]]
-
 ## Related Documentation
 
-- [[docs/02-architecture/system-architecture.md|Architecture Details]]
-- [[docs/03-development/installation-guide.md|Development Guide]]
-- [[docs/03-development/troubleshooting.md|Troubleshooting Guide]]
-- [[docs/04-features/project-phases-overview.md|Project Phases]]
+- [[01-architecture/system-architecture|Architecture Details]]
+- [[02-installation/installation-guide|Installation Guide]]
+- [[03-api/api-reference|API Reference]]
+- [[05-troubleshooting/troubleshooting-guide|Troubleshooting Guide]]

@@ -54,7 +54,7 @@ docker run -d -p 6333:6333 -p 6334:6334 qdrant/qdrant:latest
 The project is developed in phases:
 
 - **Phase 1**: Foundations - ✅ Complete
-- **Phase 2**: RAG Core - ✅ Complete  
+- **Phase 2**: RAG Core - ✅ Complete
 - **Phase 3**: MCP Integration - ✅ Complete
 - **Phase 4**: Memory Integration - 🔄 In Progress (25% Complete)
 - **Phase 5**: Advanced Features - ⏳ Pending
@@ -63,11 +63,14 @@ The project is developed in phases:
 
 Comprehensive documentation is available in the `docs/` directory:
 
-- **Project Overview**: [[docs/01-overview/project-overview.md]]
-- **System Architecture**: [[docs/02-architecture/system-architecture.md]]
-- **Deployment Guide**: [[docs/03-development/installation-guide.md]]
-- **Troubleshooting**: [[docs/03-development/troubleshooting.md]]
-- **Project Phases**: [[docs/04-features/project-phases-overview.md]]
+- **Documentation Index**: [[docs/00-overview/documentation-index.md]]
+- **Project Overview**: [[docs/00-overview/project-overview.md]]
+- **System Architecture**: [[docs/01-architecture/system-architecture.md]]
+- **Installation Guide**: [[docs/02-installation/installation-guide.md]]
+- **API Reference**: [[docs/03-api/api-reference.md]]
+- **Development Phases**: [[docs/04-development/development-phases.md]]
+- **Project Refactoring**: [[docs/04-development/project-refactoring.md]]
+- **Troubleshooting**: [[docs/05-troubleshooting/troubleshooting-guide.md]]
 
 ## Development
 

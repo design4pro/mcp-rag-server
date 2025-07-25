@@ -1,3 +1,14 @@
+---
+title: development-phases
+type: note
+permalink: docs/04-development/development-phases
+tags:
+- '[''development-phases'''
+- '''roadmap'''
+- project-planning'
+- '''obsidian-compatible'']'
+---
+
 # Project Phases Overview
 
 ## Introduction
@@ -17,7 +28,7 @@ This document provides a comprehensive overview of all phases in the MCP RAG ser
 ## Phase Details
 
 ### Phase 1: Foundations ✅ Complete
-**Location**: [[docs/04-features/phase1-foundations/README.md]]
+**Location**: [[phase1-foundations|Phase 1 Documentation]]
 
 **Overview**: Established the foundational infrastructure for the MCP RAG server project, setting up the core development environment and basic services.
 
@@ -30,7 +41,7 @@ This document provides a comprehensive overview of all phases in the MCP RAG ser
 **Dependencies**: None (foundational)
 
 ### Phase 2: RAG Core ✅ Complete
-**Location**: [[docs/04-features/phase2-rag-core/README.md]]
+**Location**: [[phase2-rag-core|Phase 2 Documentation]]
 
 **Overview**: Implemented the core RAG (Retrieval-Augmented Generation) functionality, building upon the foundational services established in Phase 1.
 
@@ -43,7 +54,7 @@ This document provides a comprehensive overview of all phases in the MCP RAG ser
 **Dependencies**: Phase 1 (Foundational services)
 
 ### Phase 3: MCP Integration ✅ Complete
-**Location**: [[docs/04-features/phase3-mcp-integration/README.md]]
+**Location**: [[phase3-mcp-integration|Phase 3 Documentation]]
 
 **Overview**: Implemented comprehensive MCP (Model Context Protocol) integration, providing tools and resources for document management, search operations, and memory handling.
 
@@ -57,7 +68,7 @@ This document provides a comprehensive overview of all phases in the MCP RAG ser
 **Dependencies**: Phase 1 (Foundational services), Phase 2 (RAG core functionality)
 
 ### Phase 4: Memory Integration 🔄 In Progress
-**Location**: [[docs/04-features/phase4-memory-integration/README.md]]
+**Location**: [[phase4-memory-integration|Phase 4 Documentation]]
 
 **Overview**: Implementing comprehensive memory integration for the MCP RAG server, enhancing the system's ability to maintain context across conversations.
 
@@ -72,7 +83,7 @@ This document provides a comprehensive overview of all phases in the MCP RAG ser
 **Dependencies**: Phase 1, Phase 2, Phase 3
 
 ### Phase 5: Advanced Features ⏳ Pending
-**Location**: [[docs/04-features/phase5-advanced-features/README.md]]
+**Location**: [[phase5-advanced-features|Phase 5 Documentation]]
 
 **Overview**: Advanced features, performance optimization, and comprehensive monitoring for the MCP RAG server.
 
@@ -178,11 +189,11 @@ While not currently planned, future phases could include:
 
 For questions about specific phases or the overall project:
 - Check the relevant phase documentation
-- Review the troubleshooting guide: [[docs/03-development/troubleshooting.md]]
-- Consult the system architecture: [[docs/02-architecture/system-architecture.md]]
+- Review the troubleshooting guide: [[../05-troubleshooting/troubleshooting-guide|Troubleshooting Guide]]
+- Consult the system architecture: [[../01-architecture/system-architecture|System Architecture]]
 
 ---
 
 *Last updated: 2025-01-25*
 *Project: MCP RAG Server*
-*Version: 1.0.0* 
+*Version: 1.0.0*

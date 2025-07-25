@@ -1,8 +1,52 @@
+---
+title: system-architecture
+type: note
+permalink: docs/01-architecture/system-architecture
+tags:
+- '[''architecture'''
+- system-design
+- components'
+- '''obsidian-compatible'']'
+---
+
 # System Architecture
 
 ## Overview
 
 The MCP RAG Server is a comprehensive Retrieval-Augmented Generation (RAG) system that integrates multiple services to provide intelligent document processing, search, and question-answering capabilities.
+
+## Project Structure
+
+The project follows a well-organized directory structure designed for maintainability and scalability:
+
+```
+rag/
+├── src/                          # Source code
+│   ├── mcp_rag_server/          # Main package
+│   │   ├── services/            # Core services
+│   │   ├── tools/               # MCP tools
+│   │   ├── resources/           # MCP resources
+│   │   └── validation.py        # Validation schemas
+│   ├── run_server.py            # MCP server runner
+│   └── run_server_http.py       # HTTP server runner
+├── tests/                       # Test suite
+│   ├── unit/                    # Unit tests
+│   └── integration/             # Integration tests
+├── docker/                      # Docker configuration
+│   ├── docker-compose.yml       # Service orchestration
+│   └── Dockerfile               # Container definition
+├── deployment/                  # Deployment files
+│   ├── mcp-rag-server.service   # Systemd service
+│   └── start_services.sh        # Startup script
+├── data/                        # Persistent data
+│   └── mem0_data/               # Memory storage
+├── logs/                        # Log files
+├── scripts/                     # Management scripts
+├── docs/                        # Documentation
+└── examples/                    # Usage examples
+```
+
+For detailed information about the refactoring that established this structure, see [[../04-development/project-refactoring|project-refactoring]].
 
 ## Architecture Components
 
@@ -126,23 +170,31 @@ The system uses a centralized configuration system with environment variables:
 ## Current Status
 
 - **Phase 1**: Foundations - ✅ Complete
-  - [[docs/04-features/phase1-foundations/README.md|Documentation]]
+  - [[../04-development/phase1-foundations|Documentation]]
 - **Phase 2**: RAG Core - ✅ Complete
-  - [[docs/04-features/phase2-rag-core/README.md|Documentation]]
+  - [[../04-development/phase2-rag-core|Documentation]]
 - **Phase 3**: MCP Integration - ✅ Complete
-  - [[docs/04-features/phase3-mcp-integration/README.md|Documentation]]
+  - [[../04-development/phase3-mcp-integration|Documentation]]
 - **Phase 4**: Memory Integration - 🔄 In Progress (25% Complete)
-  - [[docs/04-features/phase4-memory-integration/README.md|Documentation]]
-  - [[docs/04-features/phase4-memory-integration/implementation-plan.md|Implementation Plan]]
+  - [[../04-development/phase4-memory-integration|Documentation]]
+  - [[../04-development/phase4-memory-integration-implementation|Implementation Plan]]
 - **Phase 5**: Advanced Features - ⏳ Pending
-  - [[docs/04-features/phase5-advanced-features/README.md|Documentation]]
+  - [[../04-development/phase5-advanced-features|Documentation]]
 
-**Complete Phase Overview**: [[docs/04-features/project-phases-overview.md|Project Phases Overview]]
+**Complete Phase Overview**: [[../04-development/development-phases|Project Phases Overview]]
 
 ### Phase 4 Progress
+
 - ✅ Basic mem0 service integration
 - ✅ Memory storage infrastructure
 - ✅ Basic memory CRUD operations
 - 🔄 Memory-aware RAG queries (In Progress)
 - ⏳ User session management (Pending)
 - ⏳ Advanced memory context retrieval (Pending)
+
+## Related Documentation
+
+- [[../00-overview/project-overview|Project Overview]]
+- [[../02-installation/installation-guide|Installation Guide]]
+- [[../03-api/api-reference|API Reference]]
+- [[../04-development/project-refactoring|Project Refactoring History]]

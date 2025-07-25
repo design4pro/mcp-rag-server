@@ -1,3 +1,14 @@
+---
+title: troubleshooting-guide
+type: note
+permalink: docs/05-troubleshooting/troubleshooting-guide
+tags:
+- '[]troubleshooting'''
+- '''debugging'''
+- '''issues'''
+- '''obsidian-compatible'']'
+---
+
 # Troubleshooting Guide
 
 ## Common Issues and Solutions
@@ -236,6 +247,6 @@ Check environment setup:
 
 ## Related Documentation
 
-- [[Installation Guide]]
-- [[Configuration Guide]]
-- [[System Architecture]]
+- [[../02-installation/installation-guide|Installation Guide]]
+- [[../01-architecture/system-architecture|Configuration Guide]]
+- [[../01-architecture/system-architecture|System Architecture]]
