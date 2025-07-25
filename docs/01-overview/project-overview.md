@@ -76,19 +76,46 @@ See [[Installation Guide]] for detailed setup instructions.
 
 ## Development Status
 
+The project follows a phased development approach with comprehensive documentation in the `docs/04-features/` directory:
+
 - **Phase 1**: ✅ Foundation (Completed)
+  - [[docs/04-features/phase1-foundations/README.md|Documentation]]
   - Project structure and dependencies
   - Basic MCP server implementation
   - Configuration management
   - Gemini API integration
   - Qdrant service implementation
 
-- **Phase 2**: 🔄 Core RAG (In Progress)
+- **Phase 2**: ✅ RAG Core (Completed)
+  - [[docs/04-features/phase2-rag-core/README.md|Documentation]]
   - Document ingestion pipeline
   - Embedding generation service
   - Vector storage and retrieval
   - Basic search functionality
   - RAG query pipeline
+
+- **Phase 3**: ✅ MCP Integration (Completed)
+  - [[docs/04-features/phase3-mcp-integration/README.md|Documentation]]
+  - Document management tools
+  - Search and query tools
+  - Memory management tools
+  - Data access resources
+  - Validation and error handling
+
+- **Phase 4**: 🔄 Memory Integration (25% Complete)
+  - [[docs/04-features/phase4-memory-integration/README.md|Documentation]]
+  - [[docs/04-features/phase4-memory-integration/implementation-plan.md|Implementation Plan]]
+  - Memory-aware RAG queries
+  - User session management
+  - Advanced memory context retrieval
+
+- **Phase 5**: ⏳ Advanced Features (Planned)
+  - [[docs/04-features/phase5-advanced-features/README.md|Documentation]]
+  - Advanced document processing
+  - Performance monitoring
+  - Production features
+
+**Complete Phase Overview**: [[docs/04-features/project-phases-overview.md|Project Phases Overview]]
 
 ## Related Documentation
 

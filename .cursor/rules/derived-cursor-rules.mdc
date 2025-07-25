@@ -16,6 +16,7 @@ globs: *
 - The MCP RAG server health check must be verified to ensure Qdrant, Mem0, and RAG are active.
 - Extra inputs are not permitted during config validation. Set `extra = "ignore"` in the Config class of Pydantic models.
 - Set `extra = "ignore"` in the Config class of Pydantic models.
+- Use basic memory notes for documentation, action plans, and task lists.
 
 ## TECH STACK
 
@@ -64,6 +65,7 @@ globs: *
 ```
 
 - Troubleshooting documentation is located in `docs/03-development/troubleshooting.md`.
+- Project documentation is stored in the `docs/` folder, with subfolders for each phase's plans.
 
 ## CODING STANDARDS
 
@@ -102,7 +104,7 @@ globs: *
     - [x] Error handling and validation (Pydantic schemas)
     - [x] Complete MCP tool registration system
     - [x] Proper tool and resource organization
-  - Phase 4: Memory Integration (Medium Priority)
+  - Phase 4: Memory Integration (Medium Priority) - **IN PROGRESS**
     - [x] mem0 service integration (basic setup)
     - [ ] RAG queries considering memory
     - [ ] User session management

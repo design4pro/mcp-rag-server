@@ -126,10 +126,18 @@ The system uses a centralized configuration system with environment variables:
 ## Current Status
 
 - **Phase 1**: Foundations - ✅ Complete
+  - [[docs/04-features/phase1-foundations/README.md|Documentation]]
 - **Phase 2**: RAG Core - ✅ Complete
+  - [[docs/04-features/phase2-rag-core/README.md|Documentation]]
 - **Phase 3**: MCP Integration - ✅ Complete
+  - [[docs/04-features/phase3-mcp-integration/README.md|Documentation]]
 - **Phase 4**: Memory Integration - 🔄 In Progress (25% Complete)
+  - [[docs/04-features/phase4-memory-integration/README.md|Documentation]]
+  - [[docs/04-features/phase4-memory-integration/implementation-plan.md|Implementation Plan]]
 - **Phase 5**: Advanced Features - ⏳ Pending
+  - [[docs/04-features/phase5-advanced-features/README.md|Documentation]]
+
+**Complete Phase Overview**: [[docs/04-features/project-phases-overview.md|Project Phases Overview]]
 
 ### Phase 4 Progress
 - ✅ Basic mem0 service integration

@@ -298,6 +298,24 @@ python -m pytest tests/ --cov=src/mcp_rag_server
 - Monitor resource usage: `docker stats` (if using Docker)
 - Health checks: `./scripts/manage_server.sh health`
 
+## Project Phases
+
+The project is developed in phases with comprehensive documentation in the `docs/04-features/` directory:
+
+- **Phase 1**: Foundations - ✅ Complete
+  - [[docs/04-features/phase1-foundations/README.md|Documentation]]
+- **Phase 2**: RAG Core - ✅ Complete
+  - [[docs/04-features/phase2-rag-core/README.md|Documentation]]
+- **Phase 3**: MCP Integration - ✅ Complete
+  - [[docs/04-features/phase3-mcp-integration/README.md|Documentation]]
+- **Phase 4**: Memory Integration - 🔄 In Progress (25% Complete)
+  - [[docs/04-features/phase4-memory-integration/README.md|Documentation]]
+  - [[docs/04-features/phase4-memory-integration/implementation-plan.md|Implementation Plan]]
+- **Phase 5**: Advanced Features - ⏳ Pending
+  - [[docs/04-features/phase5-advanced-features/README.md|Documentation]]
+
+**Complete Phase Overview**: [[docs/04-features/project-phases-overview.md|Project Phases Overview]]
+
 ## Contributing
 
 1. Follow the phased development approach
