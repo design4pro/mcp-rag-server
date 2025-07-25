@@ -1,0 +1,195 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.3, pytest-8.4.1, pluggy-1.6.0 -- /Library/Frameworks/Python.framework/Versions/3.13/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/rafalwolak/dev/mcp/rag
+configfile: pyproject.toml
+plugins: anyio-4.9.0, asyncio-1.1.0, langsmith-0.4.8
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 153 items
+
+tests/unit/test_context_service.py::TestEnhancedContextService::test_analyze_context PASSED [  0%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_extract_relevant_context PASSED [  1%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_map_relationships PASSED [  1%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_analyze_semantic_context PASSED [  2%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_entity_extraction PASSED [  3%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_relationship_analysis PASSED [  3%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_temporal_context_analysis PASSED [  4%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_semantic_context_analysis PASSED [  5%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_conceptual_context_analysis PASSED [  5%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_comprehensive_context_building PASSED [  6%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_keyword_extraction PASSED [  7%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_entity_relevance_calculation PASSED [  7%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_relationship_relevance_calculation PASSED [  8%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_entity_relationship_analysis PASSED [  9%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_relationship_graph_building PASSED [  9%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_semantic_feature_extraction PASSED [ 10%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_semantic_relationship_analysis PASSED [ 11%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_concept_mapping PASSED [ 11%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_semantic_similarity_analysis PASSED [ 12%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_concept_extraction PASSED [ 13%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_concept_relationship_analysis PASSED [ 13%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_concept_hierarchy_building PASSED [ 14%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_context_history PASSED [ 15%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_context_caching PASSED [ 15%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_error_handling FAILED [ 16%]
+tests/unit/test_context_service.py::TestEnhancedContextService::test_configuration_options PASSED [ 16%]
+tests/unit/test_context_service.py::TestContextEntity::test_context_entity_creation PASSED [ 17%]
+tests/unit/test_context_service.py::TestContextRelationship::test_context_relationship_creation PASSED [ 18%]
+tests/unit/test_context_service.py::TestContextConfig::test_context_config_defaults PASSED [ 18%]
+tests/unit/test_context_service.py::TestContextConfig::test_context_config_custom_values PASSED [ 19%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_cosine_similarity_calculation PASSED [ 20%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_keyword_relevance_calculation PASSED [ 20%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_recency_score_calculation PASSED [ 21%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_memory_relevance_calculation PASSED [ 22%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_semantic_memory_search PASSED [ 22%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_hybrid_memory_search PASSED [ 23%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_memory_context_formatting PASSED [ 24%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_memory_summarization PASSED [ 24%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_add_memory_with_embedding PASSED [ 25%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_update_memory_embedding PASSED [ 26%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_get_memory_stats_by_session PASSED [ 26%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_search_memories_advanced_hierarchical PASSED [ 27%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_search_memories_advanced_semantic PASSED [ 28%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_search_memories_advanced_fuzzy PASSED [ 28%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_search_memories_advanced_with_filters PASSED [ 29%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_calculate_advanced_relevance PASSED [ 30%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_cluster_memories_by_topic PASSED [ 30%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_cluster_memories_by_temporal PASSED [ 31%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_generate_context_summary_key_points PASSED [ 32%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_generate_context_summary_narrative PASSED [ 32%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_generate_context_summary_structured PASSED [ 33%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_get_filtered_memories PASSED [ 33%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_is_memory_in_time_range PASSED [ 34%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_hierarchical_search PASSED [ 35%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_semantic_search PASSED [ 35%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_fuzzy_search PASSED [ 36%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_calculate_fuzzy_match PASSED [ 37%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_combine_and_deduplicate PASSED [ 37%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_calculate_frequency_score PASSED [ 38%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_calculate_interaction_score PASSED [ 39%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_get_dynamic_weights PASSED [ 39%]
+tests/unit/test_mem0_service.py::TestMem0ServiceEnhanced::test_calculate_confidence PASSED [ 40%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_add_memory_success PASSED [ 41%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_add_memory_validation_error PASSED [ 41%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_add_memory_service_error PASSED [ 42%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_user_memories_success PASSED [ 43%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_user_memories_service_error PASSED [ 43%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_delete_memory_success PASSED [ 44%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_delete_memory_service_error PASSED [ 45%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_clear_user_memories_success PASSED [ 45%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_clear_user_memories_service_error PASSED [ 46%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_memory_context_success PASSED [ 47%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_memory_context_service_error PASSED [ 47%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_user_session_info_success PASSED [ 48%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_user_session_info_service_error PASSED [ 49%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_search_memories_advanced_success PASSED [ 49%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_search_memories_advanced_validation_error PASSED [ 50%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_search_memories_advanced_service_error PASSED [ 50%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_enhanced_memory_context_success PASSED [ 51%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_enhanced_memory_context_no_memories PASSED [ 52%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_enhanced_memory_context_validation_error PASSED [ 52%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_enhanced_memory_context_service_error PASSED [ 53%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_analyze_memory_patterns_success PASSED [ 54%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_analyze_memory_patterns_no_memories PASSED [ 54%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_analyze_memory_patterns_validation_error PASSED [ 55%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_analyze_memory_patterns_service_error PASSED [ 56%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_cluster_user_memories_success PASSED [ 56%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_cluster_user_memories_no_memories PASSED [ 57%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_cluster_user_memories_validation_error PASSED [ 58%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_cluster_user_memories_service_error PASSED [ 58%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_memory_insights_comprehensive PASSED [ 59%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_memory_insights_engagement_only PASSED [ 60%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_memory_insights_no_memories PASSED [ 60%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_memory_insights_validation_error PASSED [ 61%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_get_memory_insights_service_error PASSED [ 62%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_is_memory_in_time_range_hour PASSED [ 62%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_is_memory_in_time_range_day PASSED [ 63%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_is_memory_in_time_range_old_memory PASSED [ 64%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_analyze_temporal_distribution PASSED [ 64%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_analyze_session_patterns PASSED [ 65%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_calculate_engagement_metrics PASSED [ 66%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_calculate_engagement_metrics_no_memories PASSED [ 66%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_analyze_topic_distribution PASSED [ 67%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_identify_memory_patterns PASSED [ 67%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_memory_tools_no_mem0_service PASSED [ 68%]
+tests/unit/test_memory_tools.py::TestMemoryTools::test_memory_tools_no_rag_service PASSED [ 69%]
+tests/unit/test_rag_service.py::test_rag_service_initialization PASSED   [ 69%]
+tests/unit/test_rag_service.py::test_add_document PASSED                 [ 70%]
+tests/unit/test_rag_service.py::test_search_documents PASSED             [ 71%]
+tests/unit/test_rag_service.py::test_ask_question PASSED                 [ 71%]
+tests/unit/test_rag_service.py::test_delete_document PASSED              [ 72%]
+tests/unit/test_rag_service.py::test_get_document PASSED                 [ 73%]
+tests/unit/test_rag_service.py::test_list_documents PASSED               [ 73%]
+tests/unit/test_rag_service.py::test_get_system_stats PASSED             [ 74%]
+tests/unit/test_rag_service.py::test_rag_service_without_memory PASSED   [ 75%]
+tests/unit/test_rag_service.py::test_rag_service_cleanup PASSED          [ 75%]
+tests/unit/test_reasoning_service.py::TestAdvancedReasoningEngine::test_deductive_reasoning PASSED [ 76%]
+tests/unit/test_reasoning_service.py::TestAdvancedReasoningEngine::test_inductive_reasoning FAILED [ 77%]
+tests/unit/test_reasoning_service.py::TestAdvancedReasoningEngine::test_abductive_reasoning PASSED [ 77%]
+tests/unit/test_reasoning_service.py::TestAdvancedReasoningEngine::test_planning_reasoning PASSED [ 78%]
+tests/unit/test_reasoning_service.py::TestAdvancedReasoningEngine::test_chain_of_thought_reasoning FAILED [ 79%]
+
+=================================== FAILURES ===================================
+________________ TestEnhancedContextService.test_error_handling ________________
+
+self = <tests.unit.test_context_service.TestEnhancedContextService object at 0x10fb06a50>
+context_service = <src.mcp_rag_server.services.context_service.EnhancedContextService object at 0x110332ac0>
+
+    @pytest.mark.asyncio
+    async def test_error_handling(self, context_service):
+        """Test error handling in context analysis."""
+        # Test with invalid input
+        result = await context_service.analyze_context("", "user1", None)
+    
+>       assert result["success"] is False
+E       assert True is False
+
+tests/unit/test_context_service.py:526: AssertionError
+_____________ TestAdvancedReasoningEngine.test_inductive_reasoning _____________
+
+self = <tests.unit.test_reasoning_service.TestAdvancedReasoningEngine object at 0x10fbe9950>
+reasoning_engine = <src.mcp_rag_server.services.reasoning_service.AdvancedReasoningEngine object at 0x10fd1bb10>
+sample_context = {'facts': ['All mammals have lungs', 'Dogs are mammals', 'Cats are mammals'], 'observations': ['Dogs breathe through t...cs', 'type': 'biological'}], 'rules': ['If X is a mammal, then X has lungs', 'If X has lungs, then X can breathe air']}
+
+    @pytest.mark.asyncio
+    async def test_inductive_reasoning(self, reasoning_engine, sample_context):
+        """Test inductive reasoning functionality."""
+        query = "Based on the patterns, what can we generalize about mammals?"
+    
+        result = await reasoning_engine.reason(query, sample_context)
+    
+        assert result["success"] is True
+>       assert result["reasoning_type"] == "inductive"
+E       AssertionError: assert 'deductive' == 'inductive'
+E         
+E         - inductive
+E         ? ^^
+E         + deductive
+E         ? ^^
+
+tests/unit/test_reasoning_service.py:92: AssertionError
+_________ TestAdvancedReasoningEngine.test_chain_of_thought_reasoning __________
+
+self = <tests.unit.test_reasoning_service.TestAdvancedReasoningEngine object at 0x10fc2c5f0>
+reasoning_engine = <src.mcp_rag_server.services.reasoning_service.AdvancedReasoningEngine object at 0x1105ee3f0>
+sample_context = {'facts': ['All mammals have lungs', 'Dogs are mammals', 'Cats are mammals'], 'observations': ['Dogs breathe through t...cs', 'type': 'biological'}], 'rules': ['If X is a mammal, then X has lungs', 'If X has lungs, then X can breathe air']}
+
+    @pytest.mark.asyncio
+    async def test_chain_of_thought_reasoning(self, reasoning_engine, sample_context):
+        """Test chain-of-thought reasoning functionality."""
+        query = "Analyze the relationship between mammals and breathing systems"
+    
+        result = await reasoning_engine.chain_of_thought_reasoning(query, sample_context)
+    
+>       assert result["success"] is True
+E       assert False is True
+
+tests/unit/test_reasoning_service.py:137: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    src.mcp_rag_server.services.reasoning_service:reasoning_service.py:166 Error in chain-of-thought reasoning: 'str' object has no attribute 'value'
+=========================== short test summary info ============================
+FAILED tests/unit/test_context_service.py::TestEnhancedContextService::test_error_handling
+FAILED tests/unit/test_reasoning_service.py::TestAdvancedReasoningEngine::test_inductive_reasoning
+FAILED tests/unit/test_reasoning_service.py::TestAdvancedReasoningEngine::test_chain_of_thought_reasoning
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 3 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+================== 3 failed, 118 passed, 70 warnings in 1.08s ==================

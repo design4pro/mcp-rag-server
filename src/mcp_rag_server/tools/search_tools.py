@@ -51,6 +51,7 @@ class SearchTools:
         self, 
         question: str, 
         user_id: str = "default",
+        session_id: Optional[str] = None,
         use_memory: bool = True,
         max_context_docs: int = 3
     ) -> Dict[str, Any]:
@@ -69,6 +70,7 @@ class SearchTools:
             response = await self.rag_service.ask_question(
                 question, 
                 user_id, 
+                session_id,
                 use_memory, 
                 max_context_docs
             )

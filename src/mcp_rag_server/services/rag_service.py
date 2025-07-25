@@ -13,6 +13,7 @@ import uuid
 from .gemini_service import GeminiService
 from .qdrant_service import QdrantService
 from .mem0_service import Mem0Service
+from .session_service import SessionService
 from .document_processor import DocumentProcessor
 
 logger = logging.getLogger(__name__)
@@ -26,12 +27,14 @@ class RAGService:
         gemini_service: GeminiService,
         qdrant_service: QdrantService,
         mem0_service: Optional[Mem0Service] = None,
+        session_service: Optional[SessionService] = None,
         document_processor: Optional[DocumentProcessor] = None
     ):
         """Initialize the RAG service."""
         self.gemini_service = gemini_service
         self.qdrant_service = qdrant_service
         self.mem0_service = mem0_service
+        self.session_service = session_service
         self.document_processor = document_processor or DocumentProcessor()
         self._initialized = False
     
@@ -147,6 +150,7 @@ class RAGService:
         self, 
         question: str, 
         user_id: str = "default",
+        session_id: Optional[str] = None,
         use_memory: bool = True,
         max_context_docs: int = 3
     ) -> str:
@@ -155,19 +159,38 @@ class RAGService:
             raise RuntimeError("RAG service not initialized")
         
         try:
+            # Record interaction if session is provided
+            if session_id and self.session_service:
+                await self.session_service.record_interaction(session_id)
+            
             # Get relevant memories if available
             memory_context = ""
             if use_memory and self.mem0_service:
-                memories = await self.mem0_service.search_memories(
-                    user_id=user_id,
-                    query=question,
-                    limit=2
-                )
+                # Generate embedding for the question
+                question_embedding = await self.gemini_service.generate_embeddings([question])
+                query_embedding = question_embedding[0] if question_embedding else None
+                
+                # Use session-aware memory search if session is provided
+                if session_id:
+                    memories = await self.mem0_service.search_memories_by_session(
+                        user_id=user_id,
+                        session_id=session_id,
+                        query=question,
+                        query_embedding=query_embedding,
+                        limit=3
+                    )
+                else:
+                    # Use hybrid memory search for non-session queries
+                    memories = await self.mem0_service.search_memories_hybrid(
+                        user_id=user_id,
+                        query=question,
+                        query_embedding=query_embedding,
+                        limit=3
+                    )
                 
                 if memories:
-                    memory_context = "Previous conversation context:\n"
-                    for memory in memories:
-                        memory_context += f"- {memory.get('memory', '')}\n"
+                    # Format memory context with length management
+                    memory_context = await self.mem0_service.format_memory_context(memories)
                     memory_context += "\n"
             
             # Search for relevant documents
@@ -182,7 +205,14 @@ class RAGService:
             if relevant_docs:
                 document_context = "Relevant documents:\n"
                 for i, doc in enumerate(relevant_docs, 1):
-                    document_context += f"{i}. {doc['content'][:200]}...\n"
+                    # Handle grouped results from search_documents
+                    if "chunks" in doc and doc["chunks"]:
+                        # Use the first chunk's content
+                        content = doc["chunks"][0]["content"]
+                    else:
+                        # Fallback to direct content field
+                        content = doc.get("content", "No content available")
+                    document_context += f"{i}. {content[:200]}...\n"
                 document_context += "\n"
             
             # Generate response
@@ -192,15 +222,34 @@ class RAGService:
                 context=full_context if full_context.strip() else None
             )
             
-            # Store the interaction in memory
+            # Store the interaction in memory with embedding
             if use_memory and self.mem0_service:
-                await self.mem0_service.add_memory(
-                    user_id=user_id,
-                    content=f"Q: {question}\nA: {response}",
-                    memory_type="conversation"
-                )
+                # Generate embedding for the memory content
+                memory_content = f"Q: {question}\nA: {response}"
+                memory_embedding = await self.gemini_service.generate_embeddings([memory_content])
+                embedding = memory_embedding[0] if memory_embedding else None
+                
+                # Add memory with session context if available
+                if session_id:
+                    await self.mem0_service.add_memory_with_session(
+                        user_id=user_id,
+                        content=memory_content,
+                        session_id=session_id,
+                        memory_type="conversation",
+                        embedding=embedding
+                    )
+                    # Record memory creation in session
+                    if self.session_service:
+                        await self.session_service.record_memory_creation(session_id)
+                else:
+                    await self.mem0_service.add_memory(
+                        user_id=user_id,
+                        content=memory_content,
+                        memory_type="conversation",
+                        embedding=embedding
+                    )
             
-            logger.info(f"Generated RAG response for user {user_id}")
+            logger.info(f"Generated RAG response for user {user_id} with enhanced memory context")
             return response
             
         except Exception as e:

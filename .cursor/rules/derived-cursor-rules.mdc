@@ -30,6 +30,7 @@ globs: *
 - The documentation folder `docs/` should contain all subfolders and files.
 - Documentation, action plans, and task lists must be prepared using basic memory notes.
 - When preparing documentation, plan of actions, and lists of tasks, always use the documentation preparation workflow.
+- During integration tests, `Mem0Service` must be initialized in a way that **bypasses any external API requirements** and uses only local file-based storage.
 
 ## TECH STACK
 
@@ -51,6 +52,8 @@ globs: *
 - aiohttp
 - fastapi
 - uvicorn
+- cv2 (OpenCV)
+- librosa
 
 ## PROJECT DOCUMENTATION & CONTEXT SYSTEM
 
@@ -97,7 +100,7 @@ docs/
 └── 99-templates/                  # Project phases
 ```
 
-- Phase documentation is located in `docs/04-features/` with phase-specific folders.
+- Phase documentation is located in `docs/04-development/phases/` with phase-specific folders.
 - All documentation should use Obsidian-style links `[[filename]]` or `[[folder/filename|Link Text]]`.
 - File naming conventions:
   - `README.md`: Main overview for each phase
@@ -137,9 +140,18 @@ docs/
 - Check service logs for Docker-based services using `docker logs <container_id>`.
 - Ensure Qdrant is running correctly. Use `curl http://localhost:6333/` to check that Qdrant is accessible, and confirm the response indicates the service is running.
 - Ensure self-hosted mem0 works without needing an API key.
+- During integration tests, `Mem0Service` must be initialized in a way that **bypasses any external API requirements** and uses only local file-based storage.
+- If `get_memory_context` or `get_user_memories` from `Mem0Service` raises an error, ensure that the methods `get_relevant_memories` and `get_memories` are implemented in `Mem0Service`.
+- If `list_documents` or `get_document_stats` from `QdrantService` raises an error, ensure the `list_documents` method is implemented in `QdrantService`.
+- If `get_document` returns "Document not found," verify that the document ID exists in the Qdrant collection.
 
 ## WORKFLOW & RELEASE RULES
 
+- Always stage all changes using `git add .` before committing.
+- Commit changes with descriptive messages, including details of reorganizations, new files, updates, and cleanup.
+- Always check `git status` before committing to review changes.
+- After committing, verify there are no remaining untracked files (excluding auto-generated files like SpecStory history files, unless specifically needed).
+- Before moving to the next task, always check the current project status and action plan.
 - The project will be developed in phases:
   - Phase 1: Foundations (High Priority)
     - [x] Initialize Python project with dependencies
@@ -161,19 +173,24 @@ docs/
     - [x] Error handling and validation (Pydantic schemas)
     - [x] Complete MCP tool registration system
     - [x] Proper tool and resource organization
-  - Phase 4: Memory Integration (Medium Priority) - **IN PROGRESS**
+  - Phase 4: Memory Integration (Medium Priority) - **COMPLETED**
     - [x] mem0 service integration (basic setup)
     - [x] Memory storage infrastructure
     - [x] Basic memory CRUD operations
-    - [ ] RAG queries considering memory
-    - [ ] User session management
-    - [ ] Memory management tools
-  - Phase 5: Advanced Features (Low Priority)
-    - [ ] Document preprocessing and chunking improvements
-    - [ ] Advanced search filters
-    - [ ] Performance monitoring
-    - [ ] Complete documentation
-    - [ ] Tests and examples
+    - [x] Memory-aware RAG queries with semantic search (COMPLETED)
+    - [x] User session management
+    - [x] Advanced memory context retrieval
+  - Phase 5: Advanced Features (Low Priority) - **COMPLETED**
+    - [x] Document preprocessing and chunking improvements
+    - [x] Advanced search filters
+    - [x] Performance monitoring
+    - [x] Complete documentation
+    - [x] Tests and examples
+    - [x] Fix broken MCP RAG tools
+    - [x] Comprehensive testing and validation
+  - Phase 6: Advanced AI Features (Medium Priority) - **COMPLETED**
+    - [x] Advanced AI Reasoning
+    - [ ] Enhanced Memory Systems
 
 ## DOCUMENTATION PREPARATION WORKFLOW
 
@@ -361,3 +378,24 @@ Comprehensive documentation is available in the `docs/` directory:
 - [[../00-overview/documentation-index|Documentation Index]]
 - [[../04-development/project-refactoring|Project Refactoring History]]
 - [[../02-installation/installation-guide|Installation Guide]]
+
+## GIT Workflow Rules
+
+- Always stage all changes using `git add .` before committing.
+- Commit changes with descriptive messages, including details of reorganizations, new files, updates, and cleanup.
+- Always check `git status` before committing to review changes.
+- After committing, verify there are no remaining untracked files (excluding auto-generated files like SpecStory history files, unless specifically needed).
+- Before moving to the next task, always check the current project status and action plan.
+
+## Phase 5 Completion and Phase 6 Planning
+
+### Overview
+
+#### Phase 5
+- [x] Fix broken MCP RAG tools
+- [x] Comprehensive testing and validation
+- [x] Complete documentation
+
+#### Phase 6
+- [x] Advanced AI Reasoning
+- [ ] Enhanced Memory Systems

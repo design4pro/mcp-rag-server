@@ -10,6 +10,7 @@ from mcp_rag_server.services.rag_service import RAGService
 from mcp_rag_server.services.gemini_service import GeminiService
 from mcp_rag_server.services.qdrant_service import QdrantService
 from mcp_rag_server.services.mem0_service import Mem0Service
+from mcp_rag_server.services.session_service import SessionService
 
 
 @pytest.fixture
@@ -28,10 +29,10 @@ def mock_qdrant_service():
     service.add_documents = AsyncMock(return_value=["test-doc-id"])
     service.search_documents = AsyncMock(return_value=[
         {
-            "id": "test-doc-id",
+            "id": "test-chunk-id",
             "score": 0.95,
             "content": "Test document content",
-            "metadata": {"source": "test"}
+            "metadata": {"source": "test", "document_id": "test-doc-id"}
         }
     ])
     service.delete_document = AsyncMock(return_value=True)
@@ -55,9 +56,17 @@ def mock_mem0_service():
     """Create a mock Mem0 service."""
     service = Mock(spec=Mem0Service)
     service.add_memory = AsyncMock(return_value="test-memory-id")
+    service.add_memory_with_session = AsyncMock(return_value="test-memory-id")
     service.search_memories = AsyncMock(return_value=[
         {"memory": "Previous conversation", "relevance": 0.8}
     ])
+    service.search_memories_hybrid = AsyncMock(return_value=[
+        {"memory": "Previous conversation", "relevance": 0.8}
+    ])
+    service.search_memories_by_session = AsyncMock(return_value=[
+        {"memory": "Previous conversation", "relevance": 0.8}
+    ])
+    service.format_memory_context = AsyncMock(return_value="Previous conversation")
     service.get_memory_stats = AsyncMock(return_value={
         "user_id": "test-user",
         "total_memories": 5
@@ -66,12 +75,22 @@ def mock_mem0_service():
 
 
 @pytest.fixture
-def rag_service(mock_gemini_service, mock_qdrant_service, mock_mem0_service):
+def mock_session_service():
+    """Create a mock Session service."""
+    service = Mock(spec=SessionService)
+    service.record_interaction = AsyncMock(return_value=True)
+    service.record_memory_creation = AsyncMock(return_value=True)
+    return service
+
+
+@pytest.fixture
+def rag_service(mock_gemini_service, mock_qdrant_service, mock_mem0_service, mock_session_service):
     """Create a RAG service with mocked dependencies."""
     return RAGService(
         gemini_service=mock_gemini_service,
         qdrant_service=mock_qdrant_service,
-        mem0_service=mock_mem0_service
+        mem0_service=mock_mem0_service,
+        session_service=mock_session_service
     )
 
 
@@ -108,8 +127,9 @@ async def test_search_documents(rag_service):
     results = await rag_service.search_documents(query, limit=5, user_id="test-user")
     
     assert len(results) == 1
-    assert results[0]["id"] == "test-doc-id"
-    assert results[0]["content"] == "Test document content"
+    assert results[0]["document_id"] == "test-doc-id"
+    assert len(results[0]["chunks"]) == 1
+    assert results[0]["chunks"][0]["content"] == "Test document content"
 
 
 @pytest.mark.asyncio

@@ -39,12 +39,20 @@ class Mem0Config(BaseSettings):
     """Configuration for Mem0 memory layer."""
     
     # Local storage path (fallback when mem0 package is not available)
-    local_storage_path: str = Field(default="./mem0_data", env="MEM0_LOCAL_STORAGE_PATH")
+    local_storage_path: str = Field(default="./data/mem0_data", env="MEM0_LOCAL_STORAGE_PATH")
     
     # Memory settings
     memory_size: int = Field(default=1000, description="Maximum memory entries per user")
     relevance_threshold: float = Field(default=0.7, description="Memory relevance threshold")
     max_tokens_per_memory: int = Field(default=1000, description="Maximum tokens per memory entry")
+    
+    # Memory search settings
+    use_semantic_search: bool = Field(default=True, description="Use semantic search for memories")
+    semantic_search_weight: float = Field(default=0.7, description="Weight for semantic search in hybrid scoring")
+    keyword_search_weight: float = Field(default=0.3, description="Weight for keyword search in hybrid scoring")
+    recency_weight: float = Field(default=0.1, description="Weight for recency in relevance scoring")
+    max_memory_context_length: int = Field(default=2000, description="Maximum memory context length in tokens")
+    enable_memory_summarization: bool = Field(default=True, description="Enable memory summarization for long contexts")
     
     class Config:
         env_prefix = "MEM0_"
@@ -57,6 +65,12 @@ class ServerConfig(BaseSettings):
     port: int = Field(default=8000, env="MCP_SERVER_PORT")
     log_level: str = Field(default="INFO", env="LOG_LEVEL")
     debug: bool = Field(default=False, env="DEBUG")
+    
+    # Session management settings
+    session_timeout_hours: int = Field(default=24, description="Session timeout in hours")
+    max_sessions_per_user: int = Field(default=10, description="Maximum sessions per user")
+    session_cleanup_interval_minutes: int = Field(default=5, description="Session cleanup interval in minutes")
+    enable_session_tracking: bool = Field(default=True, description="Enable session tracking")
     
     class Config:
         env_prefix = "MCP_"

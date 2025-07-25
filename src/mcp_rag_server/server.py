@@ -17,16 +17,23 @@ from .config import config
 from .services.gemini_service import GeminiService
 from .services.qdrant_service import QdrantService
 from .services.mem0_service import Mem0Service
+from .services.session_service import SessionService
 from .services.rag_service import RAGService
+from .services.reasoning_service import AdvancedReasoningEngine, ReasoningConfig
+from .services.context_service import EnhancedContextService, ContextConfig
 from .tools.document_tools import DocumentTools
 from .tools.search_tools import SearchTools
 from .tools.memory_tools import MemoryTools
+from .tools.session_tools import SessionTools
+from .tools.ai_tools import AdvancedAITools
 from .resources.document_resources import DocumentResources
 from .resources.memory_resources import MemoryResources
 from .validation import (
     validate_document_input, validate_search_input, validate_question_input,
     validate_memory_input, create_error_response, create_success_response,
-    ValidationError
+    ValidationError, validate_advanced_search_input, validate_enhanced_context_input,
+    validate_memory_pattern_analysis_input, validate_memory_clustering_input,
+    validate_memory_insights_input
 )
 
 # Configure logging
@@ -47,12 +54,17 @@ class MCPRAGServer:
         self.gemini_service: GeminiService | None = None
         self.qdrant_service: QdrantService | None = None
         self.mem0_service: Mem0Service | None = None
+        self.session_service: SessionService | None = None
         self.rag_service: RAGService | None = None
+        self.reasoning_service: AdvancedReasoningEngine | None = None
+        self.context_service: EnhancedContextService | None = None
         
         # Initialize tool and resource instances
         self.document_tools: DocumentTools | None = None
         self.search_tools: SearchTools | None = None
         self.memory_tools: MemoryTools | None = None
+        self.session_tools: SessionTools | None = None
+        self.ai_tools: AdvancedAITools | None = None
         self.document_resources: DocumentResources | None = None
         self.memory_resources: MemoryResources | None = None
         
@@ -74,7 +86,10 @@ class MCPRAGServer:
                         "gemini": self.gemini_service is not None,
                         "qdrant": self.qdrant_service is not None,
                         "mem0": self.mem0_service is not None,
-                        "rag": self.rag_service is not None
+                        "session": self.session_service is not None,
+                        "rag": self.rag_service is not None,
+                        "reasoning": self.reasoning_service is not None,
+                        "context": self.context_service is not None
                     }
                 }, "health_check")
             except Exception as e:
@@ -185,7 +200,7 @@ class MCPRAGServer:
                 return create_error_response(e, "search_documents")
         
         @self.mcp.tool()
-        async def ask_question(question: str, user_id: str = "default", use_memory: bool = True, max_context_docs: int = 3) -> dict:
+        async def ask_question(question: str, user_id: str = "default", session_id: str = None, use_memory: bool = True, max_context_docs: int = 3) -> dict:
             """Ask a question using RAG with memory context."""
             try:
                 # Validate input
@@ -202,6 +217,7 @@ class MCPRAGServer:
                 result = await self.search_tools.ask_question(
                     validated_input.question,
                     validated_input.user_id,
+                    session_id,
                     validated_input.use_memory,
                     validated_input.max_context_docs
                 )
@@ -324,6 +340,269 @@ class MCPRAGServer:
                 return result
             except Exception as e:
                 return create_error_response(e, "get_user_session_info")
+
+        # Advanced Memory Context Retrieval Tools (Task 3)
+        
+        @self.mcp.tool()
+        async def search_memories_advanced(user_id: str, query: str, search_options: dict = None) -> dict:
+            """Advanced memory search with enhanced relevance scoring and filtering."""
+            try:
+                # Validate input
+                validated_input = validate_advanced_search_input({
+                    "user_id": user_id,
+                    "query": query,
+                    "search_options": search_options
+                })
+                
+                if not self.memory_tools:
+                    raise RuntimeError("Memory tools not initialized")
+                
+                result = await self.memory_tools.search_memories_advanced(
+                    validated_input.user_id,
+                    validated_input.query,
+                    validated_input.search_options
+                )
+                return result
+            except Exception as e:
+                return create_error_response(e, "search_memories_advanced")
+        
+        @self.mcp.tool()
+        async def get_enhanced_memory_context(user_id: str, query: str, context_options: dict = None) -> dict:
+            """Get enhanced memory context with advanced processing and summarization."""
+            try:
+                # Validate input
+                validated_input = validate_enhanced_context_input({
+                    "user_id": user_id,
+                    "query": query,
+                    "context_options": context_options
+                })
+                
+                if not self.memory_tools:
+                    raise RuntimeError("Memory tools not initialized")
+                
+                result = await self.memory_tools.get_enhanced_memory_context(
+                    validated_input.user_id,
+                    validated_input.query,
+                    validated_input.context_options
+                )
+                return result
+            except Exception as e:
+                return create_error_response(e, "get_enhanced_memory_context")
+        
+        @self.mcp.tool()
+        async def analyze_memory_patterns(user_id: str, time_range: str = None) -> dict:
+            """Analyze memory patterns for a user."""
+            try:
+                # Validate input
+                validated_input = validate_memory_pattern_analysis_input({
+                    "user_id": user_id,
+                    "time_range": time_range
+                })
+                
+                if not self.memory_tools:
+                    raise RuntimeError("Memory tools not initialized")
+                
+                result = await self.memory_tools.analyze_memory_patterns(
+                    validated_input.user_id,
+                    validated_input.time_range
+                )
+                return result
+            except Exception as e:
+                return create_error_response(e, "analyze_memory_patterns")
+        
+        @self.mcp.tool()
+        async def cluster_user_memories(user_id: str, cluster_options: dict = None) -> dict:
+            """Cluster user memories for better organization and analysis."""
+            try:
+                # Validate input
+                validated_input = validate_memory_clustering_input({
+                    "user_id": user_id,
+                    "cluster_options": cluster_options
+                })
+                
+                if not self.memory_tools:
+                    raise RuntimeError("Memory tools not initialized")
+                
+                result = await self.memory_tools.cluster_user_memories(
+                    validated_input.user_id,
+                    validated_input.cluster_options
+                )
+                return result
+            except Exception as e:
+                return create_error_response(e, "cluster_user_memories")
+        
+        @self.mcp.tool()
+        async def get_memory_insights(user_id: str, insight_type: str = "comprehensive") -> dict:
+            """Get comprehensive memory insights for a user."""
+            try:
+                # Validate input
+                validated_input = validate_memory_insights_input({
+                    "user_id": user_id,
+                    "insight_type": insight_type
+                })
+                
+                if not self.memory_tools:
+                    raise RuntimeError("Memory tools not initialized")
+                
+                result = await self.memory_tools.get_memory_insights(
+                    validated_input.user_id,
+                    validated_input.insight_type
+                )
+                return result
+            except Exception as e:
+                return create_error_response(e, "get_memory_insights")
+        
+        # Session management tools
+        @self.mcp.tool()
+        async def create_session(user_id: str, session_name: str = None, metadata: dict = None) -> dict:
+            """Create a new session for a user."""
+            try:
+                if not self.session_tools:
+                    raise RuntimeError("Session tools not initialized")
+                
+                return await self.session_tools.create_session(user_id, session_name, metadata)
+            except Exception as e:
+                return create_error_response(e, "create_session")
+        
+        @self.mcp.tool()
+        async def get_session_info(session_id: str) -> dict:
+            """Get information about a specific session."""
+            try:
+                if not self.session_tools:
+                    raise RuntimeError("Session tools not initialized")
+                
+                return await self.session_tools.get_session_info(session_id)
+            except Exception as e:
+                return create_error_response(e, "get_session_info")
+        
+        @self.mcp.tool()
+        async def list_user_sessions(user_id: str, include_expired: bool = False) -> dict:
+            """List all sessions for a user."""
+            try:
+                if not self.session_tools:
+                    raise RuntimeError("Session tools not initialized")
+                
+                return await self.session_tools.list_user_sessions(user_id, include_expired)
+            except Exception as e:
+                return create_error_response(e, "list_user_sessions")
+        
+        @self.mcp.tool()
+        async def expire_session(session_id: str) -> dict:
+            """Manually expire a session."""
+            try:
+                if not self.session_tools:
+                    raise RuntimeError("Session tools not initialized")
+                
+                return await self.session_tools.expire_session(session_id)
+            except Exception as e:
+                return create_error_response(e, "expire_session")
+        
+        @self.mcp.tool()
+        async def get_session_stats(session_id: str) -> dict:
+            """Get statistics for a specific session."""
+            try:
+                if not self.session_tools:
+                    raise RuntimeError("Session tools not initialized")
+                
+                return await self.session_tools.get_session_stats(session_id)
+            except Exception as e:
+                return create_error_response(e, "get_session_stats")
+        
+        @self.mcp.tool()
+        async def get_system_session_stats() -> dict:
+            """Get overall system session statistics."""
+            try:
+                if not self.session_tools:
+                    raise RuntimeError("Session tools not initialized")
+                
+                return await self.session_tools.get_system_session_stats()
+            except Exception as e:
+                return create_error_response(e, "get_system_session_stats")
+        
+        # Advanced AI Tools
+        @self.mcp.tool()
+        async def advanced_reasoning(query: str, context: dict = None, user_id: str = "default") -> dict:
+            """Perform advanced reasoning on a query."""
+            try:
+                if not self.ai_tools:
+                    return create_error_response("AI tools not initialized", "advanced_reasoning")
+                
+                result = await self.ai_tools.advanced_reasoning(query, context, user_id)
+                return create_success_response(result, "advanced_reasoning")
+            except Exception as e:
+                return create_error_response(e, "advanced_reasoning")
+        
+        @self.mcp.tool()
+        async def chain_of_thought_reasoning(query: str, context: dict = None, max_steps: int = None, user_id: str = "default") -> dict:
+            """Perform chain-of-thought reasoning on a query."""
+            try:
+                if not self.ai_tools:
+                    return create_error_response("AI tools not initialized", "chain_of_thought_reasoning")
+                
+                result = await self.ai_tools.chain_of_thought_reasoning(query, context, max_steps, user_id)
+                return create_success_response(result, "chain_of_thought_reasoning")
+            except Exception as e:
+                return create_error_response(e, "chain_of_thought_reasoning")
+        
+        @self.mcp.tool()
+        async def multi_hop_reasoning(query: str, context: dict = None, max_hops: int = 3, user_id: str = "default") -> dict:
+            """Perform multi-hop reasoning on a query."""
+            try:
+                if not self.ai_tools:
+                    return create_error_response("AI tools not initialized", "multi_hop_reasoning")
+                
+                result = await self.ai_tools.multi_hop_reasoning(query, context, max_hops, user_id)
+                return create_success_response(result, "multi_hop_reasoning")
+            except Exception as e:
+                return create_error_response(e, "multi_hop_reasoning")
+        
+        @self.mcp.tool()
+        async def analyze_context(query: str, additional_context: dict = None, user_id: str = "default") -> dict:
+            """Analyze context for a query."""
+            try:
+                if not self.ai_tools:
+                    return create_error_response("AI tools not initialized", "analyze_context")
+                
+                result = await self.ai_tools.analyze_context(query, additional_context, user_id)
+                return create_success_response(result, "analyze_context")
+            except Exception as e:
+                return create_error_response(e, "analyze_context")
+        
+        @self.mcp.tool()
+        async def extract_relevant_context(query: str, context: dict, relevance_threshold: float = 0.5, user_id: str = "default") -> dict:
+            """Extract context relevant to a query."""
+            try:
+                if not self.ai_tools:
+                    return create_error_response("AI tools not initialized", "extract_relevant_context")
+                
+                result = await self.ai_tools.extract_relevant_context(query, context, relevance_threshold, user_id)
+                return create_success_response(result, "extract_relevant_context")
+            except Exception as e:
+                return create_error_response(e, "extract_relevant_context")
+        
+        @self.mcp.tool()
+        async def contextual_question_answering(question: str, context: dict, user_id: str = "default") -> dict:
+            """Answer a question using contextual understanding."""
+            try:
+                if not self.ai_tools:
+                    return create_error_response("AI tools not initialized", "contextual_question_answering")
+                
+                result = await self.ai_tools.contextual_question_answering(question, context, user_id)
+                return create_success_response(result, "contextual_question_answering")
+            except Exception as e:
+                return create_error_response(e, "contextual_question_answering")
+        
+        @self.mcp.tool()
+        async def advanced_query_understanding(query: str, context: dict = None, user_id: str = "default") -> dict:
+            """Perform advanced query understanding."""
+            try:
+                if not self.ai_tools:
+                    return create_error_response("AI tools not initialized", "advanced_query_understanding")
+                
+                result = await self.ai_tools.advanced_query_understanding(query, context, user_id)
+                return create_success_response(result, "advanced_query_understanding")
+            except Exception as e:
+                return create_error_response(e, "advanced_query_understanding")
     
     def _register_resources(self):
         """Register MCP resources."""
@@ -339,6 +618,7 @@ class MCPRAGServer:
                         "gemini": self.gemini_service is not None,
                         "qdrant": self.qdrant_service is not None,
                         "mem0": self.mem0_service is not None,
+                        "session": self.session_service is not None,
                         "rag": self.rag_service is not None
                     },
                     "timestamp": asyncio.get_event_loop().time()
@@ -463,18 +743,34 @@ class MCPRAGServer:
             await self.mem0_service.initialize()
             logger.info("Mem0 service initialized")
             
+            self.session_service = SessionService(config.server)
+            await self.session_service.initialize()
+            logger.info("Session service initialized")
+            
             self.rag_service = RAGService(
                 gemini_service=self.gemini_service,
                 qdrant_service=self.qdrant_service,
-                mem0_service=self.mem0_service
+                mem0_service=self.mem0_service,
+                session_service=self.session_service
             )
             await self.rag_service.initialize()
             logger.info("RAG service initialized")
+            
+            # Initialize AI services
+            reasoning_config = ReasoningConfig()
+            self.reasoning_service = AdvancedReasoningEngine(reasoning_config)
+            logger.info("Advanced reasoning service initialized")
+            
+            context_config = ContextConfig()
+            self.context_service = EnhancedContextService(context_config)
+            logger.info("Enhanced context service initialized")
             
             # Initialize tools and resources
             self.document_tools = DocumentTools(self.rag_service)
             self.search_tools = SearchTools(self.rag_service)
             self.memory_tools = MemoryTools(self.mem0_service, self.rag_service)
+            self.session_tools = SessionTools(self.session_service)
+            self.ai_tools = AdvancedAITools(self.reasoning_service, self.context_service)
             self.document_resources = DocumentResources(self.rag_service)
             self.memory_resources = MemoryResources(self.mem0_service)
             
@@ -490,6 +786,8 @@ class MCPRAGServer:
         
         if self.rag_service:
             await self.rag_service.cleanup()
+        if self.session_service:
+            await self.session_service.cleanup()
         if self.mem0_service:
             await self.mem0_service.cleanup()
         if self.qdrant_service:

@@ -1,15 +1,41 @@
 # MCP RAG Server
 
-A Model Context Protocol (MCP) server that provides Retrieval-Augmented Generation (RAG) capabilities using Qdrant vector database, mem0 memory layer, and Gemini API.
+A comprehensive Retrieval-Augmented Generation (RAG) server built with the Model Context Protocol (MCP), featuring advanced memory management, session handling, and multi-modal document processing.
 
 ## Features
 
-- **Vector Search**: Semantic document search using Qdrant
-- **Memory Management**: Conversation memory with self-hosted mem0
-- **Text Generation**: AI-powered responses using Gemini API
-- **Document Processing**: Automatic chunking and embedding generation
-- **MCP Integration**: Full Model Context Protocol support
-- **Multiple Deployment Options**: Process, Docker, or systemd service
+- **Document Management**: Add, search, and manage documents with automatic chunking and embedding
+- **Memory Integration**: Advanced memory context retrieval with multi-factor scoring
+- **Session Management**: User session tracking and statistics
+- **MCP Integration**: Full Model Context Protocol support with tools and resources
+- **Vector Search**: Powered by Qdrant vector database
+- **AI Integration**: Gemini API for embeddings and text generation
+- **Self-hosted Memory**: Local mem0 service for conversation memory
+
+## Project Structure
+
+```
+mcp-rag/
+├── data/                    # All application data
+│   ├── mem0_data/          # Memory storage
+│   ├── session_data/       # Session storage
+│   └── test_mem0_data/     # Test memory data
+├── docs/                   # Project documentation
+├── src/                    # Source code
+├── tests/                  # Test suite
+├── docker/                 # Docker configuration
+├── deployment/             # Deployment scripts
+└── examples/               # Usage examples
+```
+
+## Data Organization
+
+All application data is organized in the `data/` folder:
+- **`data/mem0_data/`**: Stores conversation memories and user data
+- **`data/session_data/`**: Stores user session information and statistics
+- **`data/test_mem0_data/`**: Test-specific memory data for development
+
+This centralized approach ensures clean project organization and easy data management.
 
 ## Quick Start
 
