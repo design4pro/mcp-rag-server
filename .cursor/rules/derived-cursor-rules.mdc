@@ -1,0 +1,111 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## PROJECT RULES
+
+- Documentation should be updated after every code change
+- All code, comments, and technical documentation should be written in English
+- The project follows modern libs-first architecture
+- The user prefers using Zod for data validation and schema structure definition
+- The project is implementing an MCP RAG server using Qdrant, mem0, and Gemini API, following a phased approach.
+- When possible, prefer open-source solutions.
+- Qdrant is running locally in Docker and does not require an API key.
+- Use a self-hosted and open-source version of mem0. Open source mem0 does not need a key.
+- The MCP RAG server health check must be verified to ensure Qdrant, Mem0, and RAG are active.
+- Extra inputs are not permitted during config validation. Set `extra = "ignore"` in the Config class of Pydantic models.
+- Set `extra = "ignore"` in the Config class of Pydantic models.
+
+## TECH STACK
+
+- MCP (FastMCP)
+- Qdrant (vector database)
+- mem0 (memory layer for AI personalization)
+- Gemini API (embeddings and text generation)
+- qdrant-client
+- mem0ai>=0.1.110
+- google-genai
+- Python (>=3.9)
+- Pydantic
+- Libraries for document chunking
+- langchain>=0.1.0
+- langchain-text-splitters>=0.0.1
+- sentence-transformers>=2.2.0
+- numpy>=1.24.0
+- tiktoken>=0.5.0
+- aiohttp
+- fastapi
+- uvicorn
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+- Project documentation is maintained using Obsidian-style markdown.
+- The user prefers the Coursor IDE for `mcpServers` configuration.
+- When configuring Coursor IDE, use a `mcpServers.json` file like this:
+
+```json
+[
+  {
+    "name": "MCP RAG Server",
+    "description": "Local MCP RAG server with Qdrant (Docker), self-hosted mem0, Gemini API",
+    "command": "python",
+    "args": ["run_server_http.py"],
+    "env": {
+      "GEMINI_API_KEY": "your_gemini_api_key_here",
+      "QDRANT_URL": "http://localhost:6333",
+      "MEM0_SELF_HOSTED": "true",
+      "MEM0_LOCAL_STORAGE_PATH": "./mem0_data",
+      "FASTMCP_HOST": "127.0.0.1",
+      "FASTMCP_PORT": "8001"
+    }
+  }
+]
+```
+
+- Troubleshooting documentation is located in `docs/03-development/troubleshooting.md`.
+
+## CODING STANDARDS
+
+- Configuration files should use Pydantic Settings with validation.
+- Set `extra = "ignore"` in the Config class of Pydantic models.
+
+## DEBUGGING
+
+- After changes, always verify the MCP RAG server health check to ensure services (Qdrant, Mem0, Gemini, RAG) are correctly initialized and running.
+- Use the `test_connections.py` script to check service connections.
+- Enable debug logging by setting `LOG_LEVEL=DEBUG` when running the server.
+- Check service logs for Docker-based services using `docker logs <container_id>`.
+- Ensure Qdrant is running correctly. Use `curl http://localhost:6333/` to check that Qdrant is accessible, and confirm the response indicates the service is running.
+
+## WORKFLOW & RELEASE RULES
+
+- The project will be developed in phases:
+    - Phase 1: Foundations (High Priority)
+        - [x] Initialize Python project with dependencies
+        - [x] Implement basic MCP server
+        - [x] Configure environment management
+        - [x] Integrate Gemini API for embeddings
+        - [x] Basic Qdrant service
+    - Phase 2: RAG Core (High Priority)
+        - [ ] Document processing pipeline
+        - [ ] Embedding generation
+        - [ ] Vector storage and search system
+        - [ ] Basic search functionality
+        - [ ] RAG query pipeline
+    - Phase 3: MCP Integration (Medium Priority)
+        - [ ] Document management tools
+        - [ ] Data access resources
+        - [ ] Search and query tools
+        - [ ] Error handling and validation
+    - Phase 4: Memory Integration (Medium Priority)
+        - [ ] mem0 integration for conversation memory
+        - [ ] RAG queries considering memory
+        - [ ] User session management
+        - [ ] Memory management tools
+    - Phase 5: Advanced Features (Low Priority)
+        - [ ] Document preprocessing and chunking
+        - [ ] Advanced search filters
+        - [ ] Performance monitoring
+        - [ ] Complete documentation
+        - [ ] Tests and examples

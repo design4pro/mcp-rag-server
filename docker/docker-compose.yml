@@ -1,0 +1,50 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: mcp-rag-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    restart: unless-stopped
+    healthcheck:
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/6333' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-rag-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: mcp-rag-server
+    ports:
+      - "8001:8001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - QDRANT_URL=http://qdrant:6333
+      - MEM0_SELF_HOSTED=true
+      - MEM0_LOCAL_STORAGE_PATH=/app/mem0_data
+      - FASTMCP_HOST=0.0.0.0
+      - FASTMCP_PORT=8001
+      - LOG_LEVEL=INFO
+    volumes:
+      - mem0_data:/app/mem0_data
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/mcp/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  qdrant_data:
+  mem0_data:
