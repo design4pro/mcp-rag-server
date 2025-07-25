@@ -1,270 +1,241 @@
 # Troubleshooting Guide
 
-This guide helps resolve common issues with the MCP RAG Server.
+## Common Issues and Solutions
 
-## Health Check Issues
+### Docker Build Issues
 
-### Problem: All services show `false` in health check
+#### Issue: "failed to solve: failed to compute cache key: failed to calculate checksum of ref"
 
 **Symptoms:**
 
-```json
-{
-  "status": "healthy",
-  "services": {
-    "gemini": false,
-    "qdrant": false,
-    "mem0": false,
-    "rag": false
-  }
-}
+```
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref 5ce827d0-f886-4873-84a8-17d7a22d7d56::k0v32hcvy7fczcn3y46xpq5by: "/run_server_http.py": not found
 ```
 
-**Root Cause:** Services are not being initialized during server startup.
+**Cause:** Docker build context is not set correctly. The Dockerfile expects files from the project root, but the build context is set to the `docker/` directory.
 
 **Solution:**
 
-1. Ensure you're using the latest version of the server
-2. Check that the server is properly configured with lifespan management
-3. Run the connection test script:
+1. Use the correct build context:
+
    ```bash
-   python test_connections.py
+   # From project root
+   docker build -f docker/Dockerfile -t mcp-rag-server .
    ```
 
-### Problem: Gemini API connection fails
+2. Or use the fixed management script:
+   ```bash
+   ./scripts/manage_docker.sh start
+   ```
+
+#### Issue: Container name conflicts
 
 **Symptoms:**
 
-- `gemini: false` in health check
-- Error: "Gemini API key not found" or authentication errors
+```
+Error response from daemon: Conflict. The container name "/mcp-rag-server" is already in use
+```
 
 **Solution:**
 
-1. Set the `GEMINI_API_KEY` environment variable:
-   ```bash
-   export GEMINI_API_KEY=your_api_key_here
-   ```
-2. Or add it to your `.env` file:
-   ```env
-   GEMINI_API_KEY=your_api_key_here
-   ```
-3. Verify the API key is valid by testing the connection:
-   ```bash
-   python test_connections.py
-   ```
+```bash
+# Remove existing containers
+docker rm -f mcp-rag-server mcp-rag-qdrant
 
-### Problem: Qdrant connection fails
+# Start fresh
+./scripts/manage_docker.sh start
+```
+
+### Service Connection Issues
+
+#### Issue: Qdrant connection refused
 
 **Symptoms:**
 
-- `qdrant: false` in health check
-- Error: "Connection refused" or "Qdrant not available"
+```
+[Errno 61] Connection refused
+```
 
 **Solution:**
 
-1. Start Qdrant using Docker:
-   ```bash
-   docker run -p 6333:6333 qdrant/qdrant
-   ```
-2. Verify Qdrant is accessible:
-   ```bash
-   curl http://localhost:6333/health
-   ```
-3. Check the Qdrant configuration in your `.env`:
-   ```env
-   QDRANT_URL=http://localhost:6333
-   ```
-4. No API key is required for local Docker installation
+1. Ensure Qdrant is running:
 
-### Problem: Mem0 connection fails
+   ```bash
+   docker ps | grep qdrant
+   ```
+
+2. Start Qdrant service:
+
+   ```bash
+   cd docker && docker-compose up -d qdrant
+   ```
+
+3. Check Qdrant health:
+   ```bash
+   curl http://localhost:6333/
+   ```
+
+#### Issue: Mem0 API key error
 
 **Symptoms:**
 
-- `mem0: false` in health check
-- Error: "Mem0 service not available"
+```
+Error initializing mem0 service: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+```
 
 **Solution:**
+This is expected for self-hosted mem0. The service will still work with local storage. If you want to use cloud mem0, set the `OPENAI_API_KEY` environment variable.
 
-1. Install mem0 package:
-   ```bash
-   pip install mem0ai
-   ```
-2. Mem0 will automatically use local storage if OpenAI API is not configured
-3. For local storage configuration:
-   ```env
-   MEM0_LOCAL_STORAGE_PATH=./mem0_data
-   ```
+### MCP Server Issues
 
-## Configuration Issues
-
-### Problem: Environment variables not loaded
+#### Issue: MCP endpoint returns 406
 
 **Symptoms:**
 
-- Configuration shows default values
-- Services fail to initialize
+```
+{"jsonrpc":"2.0","id":"server-error","error":{"code":-32600,"message":"Not Acceptable: Client must accept text/event-stream"}}
+```
+
+**Solution:**
+This is normal behavior. MCP endpoints require the `Accept: text/event-stream` header. Use proper MCP clients to connect.
+
+#### Issue: Server not responding
+
+**Symptoms:**
+
+```
+❌ MCP RAG Server health check failed (Status: 000)
+```
 
 **Solution:**
 
-1. Create a `.env` file from the example:
+1. Check server logs:
+
+   ```bash
+   ./scripts/manage_docker.sh logs-service mcp-rag-server
+   ```
+
+2. Wait for server to fully start (may take 30-60 seconds)
+
+3. Verify all services are healthy:
+   ```bash
+   ./scripts/manage_docker.sh status
+   ```
+
+### Environment Configuration Issues
+
+#### Issue: Missing environment variables
+
+**Symptoms:**
+
+```
+RuntimeError: GEMINI_API_KEY not set
+```
+
+**Solution:**
+
+1. Copy the example environment file:
+
    ```bash
    cp .env.example .env
    ```
-2. Fill in your Gemini API key and configuration
-3. Ensure the `.env` file is in the project root directory
 
-### Problem: Wrong configuration values
+2. Set your API keys in `.env`:
+   ```bash
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+
+#### Issue: Invalid configuration
 
 **Symptoms:**
 
-- Services connect but behave unexpectedly
-- Errors about invalid parameters
+```
+ValidationError: Invalid configuration
+```
 
 **Solution:**
 
-1. Check the configuration documentation in `docs/02-architecture/`
-2. Verify all required fields are set
-3. Use the test script to validate configuration:
-   ```bash
-   python test_connections.py
-   ```
+1. Check your `.env` file format
+2. Ensure all required variables are set
+3. Verify URL formats (e.g., `http://localhost:6333`)
 
-## Server Startup Issues
+### Performance Issues
 
-### Problem: Server fails to start
+#### Issue: Slow response times
 
 **Symptoms:**
 
-- Error during server initialization
-- Import errors or missing dependencies
+- Long delays when adding documents
+- Slow search results
 
 **Solution:**
 
-1. Install dependencies:
+1. Check system resources:
+
    ```bash
-   pip install -e .
-   ```
-2. Check Python version (requires 3.9+):
-   ```bash
-   python --version
-   ```
-3. Verify all required packages are installed:
-   ```bash
-   pip list | grep -E "(mcp|qdrant|mem0|google-genai|fastapi|uvicorn)"
-   ```
-4. For HTTP server issues, try the simple server:
-   ```bash
-   python simple_server.py
+   docker stats
    ```
 
-### Problem: FastMCP lifespan errors
+2. Optimize chunk size in configuration
+3. Consider increasing Docker memory limits
+
+#### Issue: Memory usage high
 
 **Symptoms:**
 
-- `TypeError: 'async_generator' object does not support the asynchronous context manager protocol`
-- `RuntimeError: Task group is not initialized`
-- `RuntimeError: Received request before initialization was complete`
-
-**Solution:**
-
-1. Use the simple HTTP server for testing:
-   ```bash
-   python simple_server.py
-   ```
-2. The simple server uses FastAPI with proper lifespan management
-3. For MCP protocol, use the stdio transport:
-   ```bash
-   python run_server.py
-   ```
-
-### Problem: Server starts but tools don't work
-
-**Symptoms:**
-
-- Server runs but MCP tools return errors
-- "RAG service not initialized" errors
-
-**Solution:**
-
-1. Check that services are properly initialized in the lifespan
-2. Verify the server is using the correct configuration
-3. Enable debug logging:
-   ```bash
-   LOG_LEVEL=DEBUG python run_server.py
-   ```
-
-## Performance Issues
-
-### Problem: Slow response times
-
-**Symptoms:**
-
-- Long delays when adding documents or searching
-- Timeout errors
-
-**Solution:**
-
-1. Check Qdrant performance:
-   ```bash
-   curl http://localhost:6333/collections
-   ```
-2. Monitor memory usage
-3. Consider optimizing chunk sizes and batch processing
-
-### Problem: Memory usage is high
-
-**Symptoms:**
-
-- Server consumes excessive memory
+- Container crashes
 - Out of memory errors
 
 **Solution:**
 
-1. Reduce batch sizes in configuration
-2. Limit concurrent operations
-3. Monitor and optimize document chunking parameters
-
-## Debugging
-
-### Enable Debug Logging
-
-Set the log level to DEBUG for detailed information:
-
-```bash
-LOG_LEVEL=DEBUG python run_server.py
-```
-
-### Test Individual Services
-
-Use the test script to isolate issues:
-
-```bash
-python test_connections.py
-```
-
-### Check Service Logs
-
-For Docker-based services like Qdrant:
-
-```bash
-docker logs <container_id>
-```
-
-### Common Error Messages
-
-| Error                         | Cause                         | Solution                     |
-| ----------------------------- | ----------------------------- | ---------------------------- |
-| "Gemini API key not found"    | Missing API key               | Set `GEMINI_API_KEY`         |
-| "Connection refused"          | Service not running           | Start required services      |
-| "RAG service not initialized" | Service initialization failed | Check configuration and logs |
-| "Invalid configuration"       | Wrong config values           | Verify `.env` file           |
+1. Increase Docker memory limits
+2. Optimize document chunking parameters
+3. Monitor memory usage with `docker stats`
 
 ## Getting Help
 
-If you're still experiencing issues:
+### Debug Mode
 
-1. Check the logs with `LOG_LEVEL=DEBUG`
-2. Run the connection test script
-3. Verify your configuration matches the examples
-4. Check that all required services are running
-5. Review the architecture documentation in `docs/02-architecture/`
+Enable debug logging by setting:
+
+```bash
+LOG_LEVEL=DEBUG
+```
+
+### Health Checks
+
+Run comprehensive health checks:
+
+```bash
+# Test all services
+python tests/integration/test_health.py
+
+# Test Phase 3 functionality
+python tests/integration/test_phase3_tools.py
+```
+
+### Logs
+
+View detailed logs:
+
+```bash
+# All services
+./scripts/manage_docker.sh logs
+
+# Specific service
+./scripts/manage_docker.sh logs-service mcp-rag-server
+```
+
+### Environment Information
+
+Check environment setup:
+
+```bash
+./scripts/manage_docker.sh env
+```
+
+## Related Documentation
+
+- [[Installation Guide]]
+- [[Configuration Guide]]
+- [[System Architecture]]

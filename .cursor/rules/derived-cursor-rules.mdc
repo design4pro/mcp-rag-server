@@ -77,35 +77,39 @@ globs: *
 - Enable debug logging by setting `LOG_LEVEL=DEBUG` when running the server.
 - Check service logs for Docker-based services using `docker logs <container_id>`.
 - Ensure Qdrant is running correctly. Use `curl http://localhost:6333/` to check that Qdrant is accessible, and confirm the response indicates the service is running.
+- Ensure self-hosted mem0 works without needing an API key.
 
 ## WORKFLOW & RELEASE RULES
 
 - The project will be developed in phases:
-    - Phase 1: Foundations (High Priority)
-        - [x] Initialize Python project with dependencies
-        - [x] Implement basic MCP server
-        - [x] Configure environment management
-        - [x] Integrate Gemini API for embeddings
-        - [x] Basic Qdrant service
-    - Phase 2: RAG Core (High Priority)
-        - [ ] Document processing pipeline
-        - [ ] Embedding generation
-        - [ ] Vector storage and search system
-        - [ ] Basic search functionality
-        - [ ] RAG query pipeline
-    - Phase 3: MCP Integration (Medium Priority)
-        - [ ] Document management tools
-        - [ ] Data access resources
-        - [ ] Search and query tools
-        - [ ] Error handling and validation
-    - Phase 4: Memory Integration (Medium Priority)
-        - [ ] mem0 integration for conversation memory
-        - [ ] RAG queries considering memory
-        - [ ] User session management
-        - [ ] Memory management tools
-    - Phase 5: Advanced Features (Low Priority)
-        - [ ] Document preprocessing and chunking
-        - [ ] Advanced search filters
-        - [ ] Performance monitoring
-        - [ ] Complete documentation
-        - [ ] Tests and examples
+  - Phase 1: Foundations (High Priority)
+    - [x] Initialize Python project with dependencies
+    - [x] Implement basic MCP server
+    - [x] Configure environment management
+    - [x] Integrate Gemini API for embeddings
+    - [x] Basic Qdrant service
+  - Phase 2: RAG Core (High Priority)
+    - [x] Document processing pipeline
+    - [x] Embedding generation
+    - [x] Vector storage and search system
+    - [x] Basic search functionality
+    - [x] RAG query pipeline
+  - Phase 3: MCP Integration (Medium Priority) - **COMPLETED**
+    - [x] Document management tools (comprehensive implementation)
+    - [x] Search and query tools (comprehensive implementation)
+    - [x] Memory management tools (comprehensive implementation)
+    - [x] Data access resources (document and memory resources)
+    - [x] Error handling and validation (Pydantic schemas)
+    - [x] Complete MCP tool registration system
+    - [x] Proper tool and resource organization
+  - Phase 4: Memory Integration (Medium Priority)
+    - [x] mem0 service integration (basic setup)
+    - [ ] RAG queries considering memory
+    - [ ] User session management
+    - [ ] Memory management tools
+  - Phase 5: Advanced Features (Low Priority)
+    - [ ] Document preprocessing and chunking improvements
+    - [ ] Advanced search filters
+    - [ ] Performance monitoring
+    - [ ] Complete documentation
+    - [ ] Tests and examples

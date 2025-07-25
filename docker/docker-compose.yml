@@ -1,3 +1,4 @@
+name: mcp-rag
 services:
   qdrant:
     image: qdrant/qdrant:latest

@@ -21894,3 +21894,236 @@ rag/
 
 ---
 
+_**User**_
+
+commit changes
+
+---
+
+_**Assistant**_
+
+Zrobię commit wszystkich zmian z refactoringu:
+
+
+---
+
+```bash
+git add .
+```
+
+---
+
+```bash
+git status
+```
+
+```
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   .cursor/mcp.json
+        new file:   .cursor/rules/derived-cursor-rules.mdc
+        new file:   .cursorignore
+        new file:   .cursorindexingignore
+        new file:   .env.example
+        new file:   .gitignore
+        new file:   .specstory/.gitignore
+        new file:   .specstory/history/2025-07-24_19-57Z-tworzenie-serwera-mcp-rag-z-qdrant.md
+        new file:   ".specstory/history/2025-07-24_21-10Z-sprawdzenie-statusu-pami\304\231ci.md"
+        new file:   .specstory/history/2025-07-25_05-48Z-do-we-have-any-documents-in-memory.md
+        new file:   README.md
+        new file:   REFACTORING_SUMMARY.md
+        new file:   deployment/README.md
+        new file:   deployment/mcp-rag-server.service
+        new file:   deployment/start_services.sh
+        new file:   docker/Dockerfile
+        new file:   docker/README.md
+        new file:   docker/docker-compose.yml
+        new file:   docs/01-overview/project-overview.md
+        new file:   docs/02-architecture/system-architecture.md
+        new file:   docs/03-development/installation-guide.md
+        new file:   docs/03-development/troubleshooting.md
+        new file:   examples/basic_usage.py
+        new file:   examples/simple_server.py
+        new file:   pyproject.toml
+        new file:   requirements.txt
+        new file:   scripts/manage_docker.sh
+        new file:   scripts/manage_server.sh
+        new file:   src/mcp_rag_server/__init__.py
+        new file:   src/mcp_rag_server/config.py
+        new file:   src/mcp_rag_server/resources/__init__.py
+        new file:   src/mcp_rag_server/server.py
+        new file:   src/mcp_rag_server/services/__init__.py
+        new file:   src/mcp_rag_server/services/document_processor.py
+        new file:   src/mcp_rag_server/services/gemini_service.py
+        new file:   src/mcp_rag_server/services/mem0_service.py
+        new file:   src/mcp_rag_server/services/qdrant_service.py
+        new file:   src/mcp_rag_server/services/rag_service.py
+        new file:   src/mcp_rag_server/tools/__init__.py
+        new file:   src/run_server.py
+        new file:   src/run_server_http.py
+        new file:   tests/README.md
+        new file:   tests/__init__.py
+        new file:   tests/integration/__init__.py
+        new file:   tests/integration/test_connections.py
+        new file:   tests/integration/test_health.py
+        new file:   tests/integration/test_mcp_client.py
+        new file:   tests/unit/__init__.py
+        new file:   tests/unit/test_rag_service.py
+
+
+```
+
+---
+
+```bash
+git commit -m "feat: Complete project refactoring and reorganization
+
+- Reorganized project structure with dedicated directories:
+  * docker/ - Docker configuration and files
+  * tests/unit/ - Unit tests
+  * tests/integration/ - Integration tests  
+  * deployment/ - Deployment configuration
+  * data/ - Persistent data storage
+  * logs/ - Log files
+
+- Moved files to appropriate locations:
+  * Docker files → docker/
+  * Test files → tests/unit/ and tests/integration/
+  * Deployment files → deployment/
+  * Data and logs → data/ and logs/
+  * Source runners → src/
+
+- Updated all configuration files:
+  * Scripts with new paths
+  * Docker build context and file paths
+  * Git ignore patterns
+  * Documentation structure
+
+- Added comprehensive documentation:
+  * README files for each directory
+  * Updated main README with new structure
+  * Refactoring summary document
+
+- Verified functionality:
+  * Docker Compose services working
+  * Management scripts updated and functional
+  * All paths correctly configured
+
+This refactoring improves maintainability, organization, and scalability
+of the MCP RAG Server project."
+```
+
+```
+[main (root-commit) 4f94be5] feat: Complete project refactoring and reorganization
+ 49 files changed, 31328 insertions(+)
+ create mode 100644 .cursor/mcp.json
+ create mode 100644 .cursor/rules/derived-cursor-rules.mdc
+ create mode 100644 .cursorignore
+ create mode 100644 .cursorindexingignore
+ create mode 100644 .env.example
+ create mode 100644 .gitignore
+ create mode 100644 .specstory/.gitignore
+ create mode 100644 .specstory/history/2025-07-24_19-57Z-tworzenie-serwera-mcp-rag-z-qdrant.md
+ create mode 100644 ".specstory/history/2025-07-24_21-10Z-sprawdzenie-statusu-pami\304\231ci.md"
+ create mode 100644 .specstory/history/2025-07-25_05-48Z-do-we-have-any-documents-in-memory.md
+ create mode 100644 README.md
+ create mode 100644 REFACTORING_SUMMARY.md
+ create mode 100644 deployment/README.md
+ create mode 100644 deployment/mcp-rag-server.service
+ create mode 100755 deployment/start_services.sh
+ create mode 100644 docker/Dockerfile
+ create mode 100644 docker/README.md
+ create mode 100644 docker/docker-compose.yml
+ create mode 100644 docs/01-overview/project-overview.md
+ create mode 100644 docs/02-architecture/system-architecture.md
+ create mode 100644 docs/03-development/installation-guide.md
+ create mode 100644 docs/03-development/troubleshooting.md
+ create mode 100644 examples/basic_usage.py
+ create mode 100644 examples/simple_server.py
+ create mode 100644 pyproject.toml
+ create mode 100644 requirements.txt
+ create mode 100755 scripts/manage_docker.sh
+ create mode 100755 scripts/manage_server.sh
+ create mode 100644 src/mcp_rag_server/__init__.py
+ create mode 100644 src/mcp_rag_server/config.py
+ create mode 100644 src/mcp_rag_server/resources/__init__.py
+ create mode 100644 src/mcp_rag_server/server.py
+ create mode 100644 src/mcp_rag_server/services/__init__.py
+ create mode 100644 src/mcp_rag_server/services/document_processor.py
+ create mode 100644 src/mcp_rag_server/services/gemini_service.py
+ create mode 100644 src/mcp_rag_server/services/mem0_service.py
+ create mode 100644 src/mcp_rag_server/services/qdrant_service.py
+ create mode 100644 src/mcp_rag_server/services/rag_service.py
+ create mode 100644 src/mcp_rag_server/tools/__init__.py
+ create mode 100755 src/run_server.py
+ create mode 100644 src/run_server_http.py
+ create mode 100644 tests/README.md
+ create mode 100644 tests/__init__.py
+ create mode 100644 tests/integration/__init__.py
+ create mode 100644 tests/integration/test_connections.py
+ create mode 100644 tests/integration/test_health.py
+ create mode 100644 tests/integration/test_mcp_client.py
+ create mode 100644 tests/unit/__init__.py
+ create mode 100644 tests/unit/test_rag_service.py
+
+```
+
+---
+
+```bash
+git log --oneline
+```
+
+```
+4f94be5 (HEAD -> main) feat: Complete project refactoring and reorganization
+
+```
+
+---
+
+## ✅ **Commit Zakończony Pomyślnie!**
+
+### 📋 **Podsumowanie Commita:**
+
+**Commit Hash:** `4f94be5`  
+**Branch:** `main`  
+**Files Changed:** 49 files  
+**Insertions:** 31,328 lines  
+
+### 🎯 **Główne Zmiany w Commicie:**
+
+#### **1. Reorganizacja Struktury Projektu:**
+- ✅ Utworzenie dedykowanych katalogów (`docker/`, `tests/`, `deployment/`, `data/`, `logs/`)
+- ✅ Przeniesienie plików do odpowiednich lokalizacji
+- ✅ Aktualizacja wszystkich ścieżek w konfiguracjach
+
+#### **2. Dokumentacja:**
+- ✅ README pliki dla każdego katalogu
+- ✅ Zaktualizowany główny README.md
+- ✅ Szczegółowy REFACTORING_SUMMARY.md
+
+#### **3. Konfiguracja:**
+- ✅ Zaktualizowane skrypty zarządzania
+- ✅ Poprawione pliki Docker
+- ✅ Rozszerzony .gitignore
+
+#### **4. Weryfikacja:**
+- ✅ Wszystkie serwisy działają poprawnie
+- ✅ Skrypty zarządzania funkcjonalne
+- ✅ Struktura projektu profesjonalna i skalowalna
+
+### 🚀 **Następne Kroki:**
+
+1. **Rozwój Funkcjonalności**: Kontynuacja implementacji faz 3-5
+2. **Testy**: Rozszerzenie pokrycia testami
+3. **CI/CD**: Implementacja pipeline'u
+4. **Monitoring**: Dodanie zaawansowanego monitoringu
+
+**Refactoring został pomyślnie zakończony i zacommitowany! Projekt ma teraz profesjonalną, skalowalną strukturę gotową do dalszego rozwoju.** 🎉
+
+---
+

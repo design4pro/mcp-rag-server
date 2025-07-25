@@ -139,7 +139,7 @@ class QdrantService:
             # Perform search using query_points (new API)
             results = self.client.query_points(
                 collection_name=self.config.collection_name,
-                query_vector=query_embedding,
+                query=query_embedding,
                 limit=limit,
                 with_payload=True,
                 query_filter=query_filter
@@ -148,15 +148,34 @@ class QdrantService:
             # Format results
             formatted_results = []
             for result in results:
-                formatted_results.append({
-                    "id": result.id,
-                    "score": result.score,
-                    "content": result.payload.get("content", ""),
-                    "metadata": result.payload.get("metadata", {}),
-                    "document_id": result.payload.get("document_id"),
-                    "created_at": result.payload.get("created_at"),
-                    "user_id": result.payload.get("user_id")
-                })
+                # Handle different result formats
+                if hasattr(result, 'id'):
+                    # ScoredPoint format
+                    formatted_results.append({
+                        "id": result.id,
+                        "score": result.score,
+                        "content": result.payload.get("content", ""),
+                        "metadata": result.payload.get("metadata", {}),
+                        "document_id": result.payload.get("document_id"),
+                        "created_at": result.payload.get("created_at"),
+                        "user_id": result.payload.get("user_id")
+                    })
+                elif isinstance(result, tuple) and len(result) >= 2:
+                    # Tuple format (id, score, payload)
+                    point_id, score, payload = result[0], result[1], result[2] if len(result) > 2 else {}
+                    formatted_results.append({
+                        "id": point_id,
+                        "score": score,
+                        "content": payload.get("content", ""),
+                        "metadata": payload.get("metadata", {}),
+                        "document_id": payload.get("document_id"),
+                        "created_at": payload.get("created_at"),
+                        "user_id": payload.get("user_id")
+                    })
+                else:
+                    # Fallback format
+                    logger.warning(f"Unexpected result format: {type(result)}")
+                    continue
             
             logger.debug(f"Found {len(formatted_results)} similar documents")
             return formatted_results

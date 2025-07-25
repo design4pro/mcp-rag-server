@@ -2,196 +2,131 @@
 
 ## Overview
 
-The MCP RAG Server follows a layered architecture pattern with clear separation of concerns. Each layer has specific responsibilities and communicates through well-defined interfaces.
+The MCP RAG Server is a comprehensive Retrieval-Augmented Generation (RAG) system that integrates multiple services to provide intelligent document processing, search, and question-answering capabilities.
 
-## Architecture Layers
+## Architecture Components
 
-### 1. MCP Protocol Layer
-The outermost layer that handles MCP protocol communication with clients.
+### Core Services
 
-**Components:**
-- **FastMCP Server**: Main server implementation
-- **Tools Registry**: MCP tools (actions) registration
-- **Resources Registry**: MCP resources (data) registration
-- **Protocol Handler**: Message routing and serialization
+1. **Gemini Service** (`gemini_service.py`)
 
-**Responsibilities:**
-- Handle MCP protocol messages
-- Route requests to appropriate services
-- Manage client connections
-- Provide standardized interface
+   - Handles text embeddings generation using Google's Gemini API
+   - Manages API authentication and rate limiting
+   - Provides batch embedding capabilities
 
-### 2. Service Layer
-Business logic layer that orchestrates the RAG pipeline.
+2. **Qdrant Service** (`qdrant_service.py`)
 
-**Components:**
-- **RAGService**: Main orchestration service
-- **GeminiService**: AI generation and embeddings
-- **QdrantService**: Vector database operations
-- **Mem0Service**: Memory management
+   - Vector database management using Qdrant
+   - Handles document storage, retrieval, and similarity search
+   - Manages collections and indexes
 
-**Responsibilities:**
-- Coordinate between different services
-- Implement business logic
-- Handle data transformations
-- Manage service lifecycle
+3. **Mem0 Service** (`mem0_service.py`)
 
-### 3. External Services Layer
-Integration layer for external APIs and services.
+   - Conversation memory management using mem0
+   - Stores and retrieves user conversation history
+   - Provides context-aware memory retrieval
 
-**Components:**
-- **Google Gemini API**: Text generation and embeddings
-- **Qdrant Vector Database**: Vector storage and search
-- **Mem0 Memory Service**: Conversation memory
+4. **RAG Service** (`rag_service.py`)
 
-**Responsibilities:**
-- Provide AI capabilities
-- Store and retrieve vectors
-- Manage conversation context
+   - Orchestrates the complete RAG pipeline
+   - Coordinates document processing, embedding, storage, and retrieval
+   - Handles question-answering with context
 
-## Component Details
+5. **Document Processor** (`document_processor.py`)
+   - Handles document chunking and preprocessing
+   - Manages text splitting and tokenization
+   - Provides document validation and metadata extraction
 
-### MCPRAGServer
-Main server class that initializes and manages all components.
+### MCP Integration Layer
 
-```python
-class MCPRAGServer:
-    def __init__(self):
-        self.mcp = FastMCP("MCP RAG Server")
-        self.gemini_service: GeminiService
-        self.qdrant_service: QdrantService
-        self.mem0_service: Mem0Service
-        self.rag_service: RAGService
-```
+#### Tools (Actions)
 
-### RAGService
-Orchestrates the entire RAG pipeline.
+1. **Document Tools** (`tools/document_tools.py`)
 
-**Key Methods:**
-- `add_document()`: Document ingestion and indexing
-- `search_documents()`: Semantic search
-- `ask_question()`: RAG-based question answering
-- `get_system_stats()`: System monitoring
+   - `add_document`: Add documents to the RAG system
+   - `delete_document`: Remove documents from the system
+   - `get_document`: Retrieve specific documents
+   - `list_documents`: List all documents
+   - `get_document_stats`: Get system statistics
 
-### GeminiService
-Handles all interactions with Google's Gemini API.
+2. **Search Tools** (`tools/search_tools.py`)
 
-**Capabilities:**
-- Text embedding generation
-- Text generation with context
-- Structured output generation
-- Model configuration management
+   - `search_documents`: Semantic document search
+   - `ask_question`: RAG-based question answering
+   - `batch_search`: Multiple query processing
+   - `get_search_suggestions`: Query suggestions
 
-### QdrantService
-Manages vector database operations.
+3. **Memory Tools** (`tools/memory_tools.py`)
+   - `add_memory`: Store conversation memory
+   - `get_user_memories`: Retrieve user memories
+   - `delete_memory`: Remove specific memories
+   - `clear_user_memories`: Clear all user memories
+   - `get_memory_context`: Get relevant memory context
+   - `get_user_session_info`: Session information
 
-**Features:**
-- Document storage with metadata
-- Semantic similarity search
-- Filtering and pagination
-- Collection management
+#### Resources (Data Sources)
 
-### Mem0Service
-Handles conversation memory and context.
+1. **Document Resources** (`resources/document_resources.py`)
 
-**Features:**
-- User-specific memory storage
-- Memory relevance search
-- Conversation context management
-- Memory statistics
+   - `rag://documents/{document_id}`: Document metadata
+   - `rag://documents/{document_id}/content`: Document content
+   - `rag://documents/{document_id}/chunks`: Document chunks
+   - `rag://search/{query}/{limit}`: Search results
+   - `rag://statistics/{user_id}`: System statistics
+
+2. **Memory Resources** (`resources/memory_resources.py`)
+   - `rag://memories/{user_id}/{limit}`: User memories
+   - `rag://memories/{user_id}/context/{query}`: Memory context
+   - `rag://memories/{user_id}/statistics`: Memory statistics
+   - `rag://session/{user_id}`: Session information
+
+### Validation and Error Handling
+
+- **Validation System** (`validation.py`)
+  - Pydantic-based input validation
+  - Comprehensive error handling
+  - Standardized response formats
+  - Input sanitization and validation
 
 ## Data Flow
 
-### Document Ingestion Flow
-```
-1. Client → MCP Server → RAGService
-2. RAGService → GeminiService (generate embedding)
-3. RAGService → QdrantService (store document + embedding)
-4. Response → Client
-```
+1. **Document Ingestion**:
 
-### Question Answering Flow
-```
-1. Client → MCP Server → RAGService
-2. RAGService → Mem0Service (get relevant memories)
-3. RAGService → GeminiService (generate query embedding)
-4. RAGService → QdrantService (search similar documents)
-5. RAGService → GeminiService (generate answer with context)
-6. RAGService → Mem0Service (store conversation)
-7. Response → Client
-```
+   ```
+   Document → Document Processor → Chunks → Embeddings → Qdrant Storage
+   ```
 
-## Configuration Management
+2. **Search Process**:
 
-The system uses Pydantic Settings for type-safe configuration management.
+   ```
+   Query → Embedding → Qdrant Search → Results → RAG Service → Answer
+   ```
 
-**Configuration Classes:**
-- `GeminiConfig`: API keys, models, parameters
-- `QdrantConfig`: Database connection, collection settings
-- `Mem0Config`: Memory service configuration
-- `ServerConfig`: Server host, port, logging
+3. **Memory Integration**:
+   ```
+   User Input → Memory Context → RAG Query → Enhanced Response
+   ```
 
-## Error Handling
+## Configuration
 
-### Error Types
-- **Service Initialization Errors**: Configuration or connection issues
-- **API Errors**: External service failures
-- **Validation Errors**: Invalid input data
-- **Runtime Errors**: Unexpected system failures
+The system uses a centralized configuration system with environment variables:
 
-### Error Handling Strategy
-- Graceful degradation when optional services fail
-- Detailed error logging for debugging
-- User-friendly error messages
-- Retry mechanisms for transient failures
+- `GEMINI_API_KEY`: Google Gemini API key
+- `QDRANT_URL`: Qdrant server URL
+- `MEM0_SELF_HOSTED`: Enable self-hosted mem0
+- `MEM0_LOCAL_STORAGE_PATH`: Local storage path for mem0
+- `LOG_LEVEL`: Logging level
 
-## Security Considerations
+## Security and Performance
 
-### API Key Management
-- Environment variable configuration
-- Secure key storage
-- Key rotation support
+- **Security**: API key management, input validation, error sanitization
+- **Performance**: Batch processing, connection pooling, caching
+- **Scalability**: Modular design, service separation, async operations
 
-### Data Privacy
-- User-specific data isolation
-- Optional memory service
-- Configurable data retention
+## Current Status
 
-### Access Control
-- User ID-based filtering
-- Document-level access control
-- Memory isolation per user
-
-## Performance Considerations
-
-### Caching Strategy
-- Embedding caching for repeated queries
-- Memory caching for frequent access
-- Connection pooling for external services
-
-### Scalability
-- Stateless service design
-- Horizontal scaling support
-- Database connection pooling
-- Async/await for I/O operations
-
-## Monitoring and Observability
-
-### Metrics
-- Request/response times
-- Error rates
-- Service health status
-- Memory usage statistics
-
-### Logging
-- Structured logging with levels
-- Request tracing
-- Error context preservation
-- Performance metrics
-
-## Related Documentation
-
-- [[Service Implementation Details]]
-- [[Configuration Guide]]
-- [[Performance Optimization]]
-- [[Security Guidelines]]
+- **Phase 1**: Foundations - ✅ Complete
+- **Phase 2**: RAG Core - ✅ Complete
+- **Phase 3**: MCP Integration - ✅ Complete
+- **Phase 4**: Memory Integration - 🔄 In Progress
+- **Phase 5**: Advanced Features - ⏳ Pending

@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src/ ./src/
-COPY run_server_http.py .
+COPY src/run_server_http.py ./run_server_http.py
 COPY .env .
 
 # Create directory for mem0 data

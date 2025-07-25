@@ -36,9 +36,9 @@ check_docker() {
 # Function to build Docker image
 build_image() {
     print_status "Building MCP RAG Server Docker image..."
-    cd "$PROJECT_DIR/docker"
+    cd "$PROJECT_DIR"
     
-    if docker build -t mcp-rag-server .; then
+    if docker build -f docker/Dockerfile -t mcp-rag-server .; then
         print_status "Docker image built successfully"
     else
         print_error "Failed to build Docker image"
