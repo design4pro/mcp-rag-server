@@ -1,0 +1,129 @@
+{
+  "timestamp": "2025-07-25T21:35:49.665610",
+  "system_info": {
+    "cpu_count": 16,
+    "memory_total": 68719476736,
+    "memory_available": 25581273088,
+    "python_version": "3.13.3 (v3.13.3:6280bb54784, Apr  8 2025, 10:47:54) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "darwin"
+  },
+  "benchmarks": {
+    "reasoning_engine": {
+      "total_queries": 4,
+      "response_times": [
+        1.0967254638671875e-05,
+        8.106231689453125e-06,
+        9.059906005859375e-06,
+        4.76837158203125e-06
+      ],
+      "success_rate": 100.0,
+      "error_count": 0,
+      "memory_usage": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cpu_usage": [
+        97.9,
+        99.4,
+        100.0,
+        99.3
+      ],
+      "avg_response_time": 8.225440979003906e-06,
+      "min_response_time": 4.76837158203125e-06,
+      "max_response_time": 1.0967254638671875e-05,
+      "median_response_time": 8.58306884765625e-06,
+      "avg_memory_usage": 0,
+      "total_memory_usage": 0,
+      "avg_cpu_usage": 99.15
+    },
+    "context_service": {
+      "total_queries": 3,
+      "response_times": [
+        0.0001499652862548828,
+        2.09808349609375e-05,
+        1.6927719116210938e-05
+      ],
+      "success_rate": 100.0,
+      "error_count": 0,
+      "memory_usage": [
+        0,
+        0,
+        0
+      ],
+      "cpu_usage": [
+        100.1,
+        100.0,
+        100.1
+      ],
+      "avg_response_time": 6.262461344401042e-05,
+      "min_response_time": 1.6927719116210938e-05,
+      "max_response_time": 0.0001499652862548828,
+      "median_response_time": 2.09808349609375e-05,
+      "avg_memory_usage": 0,
+      "total_memory_usage": 0,
+      "avg_cpu_usage": 100.06666666666666
+    },
+    "ai_tools": {
+      "total_queries": 3,
+      "response_times": [
+        9.775161743164062e-06,
+        2.09808349609375e-05,
+        3.695487976074219e-05
+      ],
+      "success_rate": 100.0,
+      "error_count": 0,
+      "memory_usage": [
+        0,
+        0,
+        0
+      ],
+      "cpu_usage": [
+        100.0,
+        100.5,
+        99.9
+      ],
+      "avg_response_time": 2.2570292154947918e-05,
+      "min_response_time": 9.775161743164062e-06,
+      "max_response_time": 3.695487976074219e-05,
+      "median_response_time": 2.09808349609375e-05,
+      "avg_memory_usage": 0,
+      "total_memory_usage": 0,
+      "avg_cpu_usage": 100.13333333333334
+    },
+    "concurrent_operations": {
+      "concurrency_levels": [
+        1,
+        2,
+        5,
+        10
+      ],
+      "response_times": {
+        "1": 7.104873657226562e-05,
+        "2": 3.3020973205566406e-05,
+        "5": 1.4591217041015626e-05,
+        "10": 8.988380432128907e-06
+      },
+      "success_rates": {
+        "1": 100.0,
+        "2": 100.0,
+        "5": 100.0,
+        "10": 100.0
+      },
+      "throughput": {
+        "1": 14074.845637583892,
+        "2": 30283.783393501806,
+        "5": 68534.37908496732,
+        "10": 111254.74801061008
+      }
+    }
+  },
+  "overall": {
+    "avg_response_time": 2.8848648071289062e-05,
+    "min_response_time": 4.76837158203125e-06,
+    "max_response_time": 0.0001499652862548828,
+    "median_response_time": 1.3947486877441406e-05,
+    "total_operations": 10
+  }
+}

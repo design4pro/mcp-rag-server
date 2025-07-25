@@ -305,8 +305,12 @@ class EnhancedContextService:
         words = query.split()
         
         for word in words:
+            # Skip empty words
+            if not word:
+                continue
+                
             # Simple entity detection
-            if word[0].isupper() or word.lower() in ["user", "system", "data", "file"]:
+            if (len(word) > 0 and word[0].isupper()) or word.lower() in ["user", "system", "data", "file"]:
                 entity = {
                     "entity_id": f"entity_{len(entities)}",
                     "entity_type": "concept",
@@ -321,7 +325,25 @@ class EnhancedContextService:
         # Extract entities from additional context
         if additional_context:
             if "entities" in additional_context:
-                entities.extend(additional_context["entities"])
+                # Ensure entities are in the correct format
+                for entity in additional_context["entities"]:
+                    if isinstance(entity, str):
+                        # Convert string entity to dict format
+                        entity_dict = {
+                            "entity_id": f"context_entity_{len(entities)}",
+                            "entity_type": "concept",
+                            "name": entity,
+                            "properties": {"source": "context", "confidence": 0.7},
+                            "relationships": [],
+                            "confidence": 0.7,
+                            "timestamp": datetime.now()
+                        }
+                        entities.append(entity_dict)
+                    elif isinstance(entity, dict):
+                        # Ensure the entity has required fields
+                        if "name" not in entity:
+                            entity["name"] = str(entity.get("entity_id", f"entity_{len(entities)}"))
+                        entities.append(entity)
         
         return entities
     
