@@ -72,7 +72,7 @@ The MCP RAG Server follows a modular architecture with clear separation of conce
 
 ## Getting Started
 
-See [[Installation Guide]] for detailed setup instructions.
+See [[docs/03-development/installation-guide.md|Installation Guide]] for detailed setup instructions.
 
 ## Development Status
 
@@ -119,7 +119,7 @@ The project follows a phased development approach with comprehensive documentati
 
 ## Related Documentation
 
-- [[Architecture Details]]
-- [[Development Guide]]
-- [[API Reference]]
-- [[Deployment Guide]]
+- [[docs/02-architecture/system-architecture.md|Architecture Details]]
+- [[docs/03-development/installation-guide.md|Development Guide]]
+- [[docs/03-development/troubleshooting.md|Troubleshooting Guide]]
+- [[docs/04-features/project-phases-overview.md|Project Phases]]

@@ -17,6 +17,8 @@ globs: *
 - Extra inputs are not permitted during config validation. Set `extra = "ignore"` in the Config class of Pydantic models.
 - Set `extra = "ignore"` in the Config class of Pydantic models.
 - Use basic memory notes for documentation, action plans, and task lists.
+- Project documentation is located in `docs/04-features/` with phase-specific folders.
+- All documentation should use Obsidian-style links `[[filename]]`.
 
 ## TECH STACK
 
@@ -66,6 +68,13 @@ globs: *
 
 - Troubleshooting documentation is located in `docs/03-development/troubleshooting.md`.
 - Project documentation is stored in the `docs/` folder, with subfolders for each phase's plans.
+- Phase documentation is located in `docs/04-features/` with phase-specific folders.
+- All documentation should use Obsidian-style links `[[filename]]`.
+- File naming conventions:
+  - `README.md`: Main overview for each phase
+  - `implementation-plan.md`: Detailed implementation plans
+  - `technical-specs.md`: Technical specifications (when needed)
+  - `testing-guide.md`: Testing procedures (when needed)
 
 ## CODING STANDARDS
 
@@ -106,6 +115,8 @@ globs: *
     - [x] Proper tool and resource organization
   - Phase 4: Memory Integration (Medium Priority) - **IN PROGRESS**
     - [x] mem0 service integration (basic setup)
+    - [x] Memory storage infrastructure
+    - [x] Basic memory CRUD operations
     - [ ] RAG queries considering memory
     - [ ] User session management
     - [ ] Memory management tools
