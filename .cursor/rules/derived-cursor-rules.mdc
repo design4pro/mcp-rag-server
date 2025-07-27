@@ -72,12 +72,12 @@ globs: *
     "command": "python",
     "args": ["run_server_http.py"],
     "env": {
-      "GEMINI_API_KEY": "your_gemini_api_key_here",
-      "QDRANT_URL": "http://localhost:6333",
-      "MEM0_SELF_HOSTED": "true",
-      "MEM0_LOCAL_STORAGE_PATH": "./mem0_data",
-      "FASTMCP_HOST": "127.0.0.1",
-      "FASTMCP_PORT": "8001"
+      "MCP_GEMINI_API_KEY": "your_gemini_api_key_here",
+      "MCP_QDRANT_URL": "http://localhost:6333",
+      "MCP_MEM0_SELF_HOSTED": "true",
+      "MCP_MEM0_STORAGE_PATH": "./mem0_data",
+      "MCP_SERVER_HOST": "127.0.0.1",
+      "MCP_SERVER_PORT": "8001"
     }
   }
 ]
@@ -124,6 +124,7 @@ docs/
     project-isolation-configuration.md
     environment-variables-configuration-guide.md
     mcp-vs-fastmcp-configuration-guide.md
+    unified-mcp-environment-variables-guide.md
   03-api/
     api-reference.md
   04-development/
@@ -438,8 +439,6 @@ This section summarizes the results of testing all available MCP RAG tools, iden
 #### 2. Document Management
 - `mcp_rag_add_document` - ✅ Works
 - `mcp_rag_delete_document` - ✅ Works
-- `mcp_rag_list_documents` - ✅ Works
-- `mcp_rag_get_document_stats` - ✅ Works
 
 #### 3. Search and Query
 - `mcp_rag_search_documents` - ✅ Works
@@ -449,8 +448,6 @@ This section summarizes the results of testing all available MCP RAG tools, iden
 #### 4. Memory Management
 - `mcp_rag_add_memory` - ✅ Works
 - `mcp_rag_delete_memory` - ✅ Works
-- `mcp_rag_get_user_memories` - ✅ Works
-- `mcp_rag_get_memory_context` - ✅ Works
 
 #### 5. Session Management
 - `mcp_rag_create_session` - ✅ Works
@@ -467,21 +464,36 @@ This section summarizes the results of testing all available MCP RAG tools, iden
 
 ### Tools with Errors ❌
 
-_None_
+#### 1. Document Management
+- `mcp_rag_list_documents` - ❌ Error: `'QdrantService' object has no attribute 'list_documents'`
+- `mcp_rag_get_document_stats` - ❌ Error: `'QdrantService' object has no attribute 'list_documents'`
+- `mcp_rag_get_document` - ❌ Error: "Document not found"
+
+#### 2. Memory Management
+- `mcp_rag_get_user_memories` - ❌ Error: `'Mem0Service' object has no attribute 'get_memories'`
+- `mcp_rag_get_memory_context` - ❌ Error: `'Mem0Service' object has no attribute 'get_relevant_memories'`
+- `mcp_rag_clear_user_memories` - ❌ Error: `'Mem0Service' object has no attribute 'clear_memories'`
+- `mcp_rag_get_user_session_info` - ❌ Error: `'Mem0Service' object has no attribute 'get_memories'`
 
 ### Test Statistics 📊
 
 - **Total tools tested:** 20
-- **Functioning correctly:** 20 (100%)
-- **With errors:** 0 (0%)
+- **Functioning correctly:** 13 (65%)
+- **With errors:** 7 (35%)
 
 ### Main Issues to Fix 🔧
 
-_None_
+1.  **QdrantService** - missing implementation of `list_documents` method.
+2.  **Mem0Service** - missing implementation of the following methods:
+    -   `get_memories`
+    -   `get_relevant_memories`
+    -   `clear_memories`
 
 ### Recommendations 💡
 
-_None_
+1.  **Priority 1:** Fix missing methods in `QdrantService` and `Mem0Service`.
+2.  **Priority 2:** Improve error handling in `get_document` (document exists but is not found).
+3.  **Priority 3:** Add better context handling in `ask_question`.
 
 ### Docker Setup (Alternative Installation)
 
@@ -886,45 +898,3 @@ The MCP RAG Server now supports project isolation to prevent data mixing between
 2. **False Associations**: System may connect concepts from different domains
 3. **Reduced Precision**: Noise in data decreases response quality
 4. **Privacy Issues**: Data from different clients gets mixed together
-5. **Confusion in Analysis**: Sequential reasoning may use wrong context
-
-#### Benefits of Project Isolation
-1. **Clean Context**: Each project has its own isolated data space
-2. **Better Accuracy**: Analysis is based only on relevant project data
-3. **Privacy Protection**: Client data remains separate
-4. **Focused Reasoning**: Sequential analysis uses project-specific context
-5. **Easier Management**: Clear separation of project resources
-
-## Configuration Options
-
-### 1. Qdrant Collection Prefix
-**Environment Variable**: `QDRANT_COLLECTION_PREFIX`
-
-**Purpose**: Creates separate collections for different projects
-- **Format**: `{prefix}_{collection_name}`
-- **Example**: `project_a_documents`, `client_b_documents`
-- **Default**: Empty (uses default collection name)
-
-**Usage**:
-```bash
-# For Project A
-QDRANT_COLLECTION_PREFIX=project_a
-
-# For Client B
-QDRANT_COLLECTION_PREFIX=client_b
-
-# For Technology X
-QDRANT_COLLECTION_PREFIX=tech_x
-```
-
-### 2. Mem0 Project Namespace
-**Environment Variable**: `MEM0_PROJECT_NAMESPACE`
-
-**Purpose**: Separates memory storage by project
-- **Format**: Creates subdirectories in memory storage
-- **Example**: `./mem0_data/project_a/`, `./mem0_data/client_b/`
-- **Default**: Empty (uses base storage path)
-
-**Usage**:
-```bash
-# For

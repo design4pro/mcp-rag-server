@@ -22,12 +22,12 @@ COPY .env .
 # Create directory for mem0 data
 RUN mkdir -p /app/mem0_data
 
-# Expose port
-EXPOSE 8001
+# Expose port (will be overridden by environment variable)
+EXPOSE 8000
 
-# Health check
+# Health check using environment variable for port
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8001/mcp/ || exit 1
+  CMD curl -f http://localhost:${MCP_SERVER_PORT:-8000}/mcp/ || exit 1
 
 # Run the server
 CMD ["python", "run_server_http.py"] 

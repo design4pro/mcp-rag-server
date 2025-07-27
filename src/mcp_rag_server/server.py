@@ -49,8 +49,12 @@ class MCPRAGServer:
     
     def __init__(self):
         """Initialize the MCP RAG Server."""
-        # Create FastMCP without lifespan
-        self.mcp = FastMCP("MCP RAG Server")
+        # Create FastMCP with port configuration
+        self.mcp = FastMCP(
+            "MCP RAG Server",
+            host=config.server.host,
+            port=config.server.port
+        )
         self.gemini_service: GeminiService | None = None
         self.qdrant_service: QdrantService | None = None
         self.mem0_service: Mem0Service | None = None
