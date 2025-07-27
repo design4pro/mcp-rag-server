@@ -1,15 +1,25 @@
 #!/bin/bash
 
 # MCP RAG Server Docker Management Script
-# Usage: ./manage_docker.sh [start|stop|restart|status|logs|build]
+# This script provides easy management of the MCP RAG Server Docker services
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+    echo "[INFO] Loaded environment variables from .env file"
+else
+    echo "[WARNING] .env file not found. Using default environment variables."
+fi
+
+# Default values
+COMPOSE_FILE="docker/docker-compose.yml"
+PROJECT_NAME="mcp-rag"
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Function to print colored output
@@ -25,20 +35,113 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+print_header() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
 # Function to check if Docker is running
 check_docker() {
     if ! docker info > /dev/null 2>&1; then
-        print_error "Docker is not running. Please start Docker first."
+        print_error "Docker is not running. Please start Docker and try again."
         exit 1
     fi
 }
 
+# Function to check if Docker Compose is available
+check_docker_compose() {
+    if ! command -v docker-compose > /dev/null 2>&1; then
+        print_error "Docker Compose is not installed. Please install Docker Compose and try again."
+        exit 1
+    fi
+}
+
+# Function to start services
+start_services() {
+    print_header "Starting MCP RAG Server services..."
+    check_docker
+    check_docker_compose
+    
+    # Use --env-file to explicitly load .env file
+    docker-compose -f "$COMPOSE_FILE" --env-file .env up -d
+    
+    if [ $? -eq 0 ]; then
+        print_status "Services started successfully"
+        print_status "Waiting for services to be ready..."
+        sleep 5
+        show_status
+    else
+        print_error "Failed to start services"
+        exit 1
+    fi
+}
+
+# Function to stop services
+stop_services() {
+    print_header "Stopping MCP RAG Server services..."
+    docker-compose -f "$COMPOSE_FILE" down
+    
+    if [ $? -eq 0 ]; then
+        print_status "Services stopped successfully"
+    else
+        print_error "Failed to stop services"
+        exit 1
+    fi
+}
+
+# Function to restart services
+restart_services() {
+    print_header "Restarting MCP RAG Server services..."
+    stop_services
+    sleep 2
+    start_services
+}
+
+# Function to show service status
+show_status() {
+    print_header "Service status:"
+    docker-compose -f "$COMPOSE_FILE" ps
+    
+    print_header "Health checks:"
+    
+    # Check Qdrant health
+    if docker-compose -f "$COMPOSE_FILE" ps qdrant | grep -q "healthy"; then
+        print_status "✅ Qdrant is healthy"
+    else
+        print_warning "❌ Qdrant health check failed"
+    fi
+    
+    # Check MCP RAG Server health
+    if docker-compose -f "$COMPOSE_FILE" ps mcp-rag-server | grep -q "healthy"; then
+        print_status "✅ MCP RAG Server is healthy"
+    else
+        print_warning "❌ MCP RAG Server health check failed"
+    fi
+}
+
+# Function to show logs
+show_logs() {
+    print_header "Showing logs for all services..."
+    docker-compose -f "$COMPOSE_FILE" logs -f
+}
+
+# Function to show logs for a specific service
+show_service_logs() {
+    local service_name=$1
+    if [ -z "$service_name" ]; then
+        print_error "Please specify a service name (e.g., qdrant, mcp-rag-server)"
+        exit 1
+    fi
+    
+    print_header "Showing logs for $service_name..."
+    docker-compose -f "$COMPOSE_FILE" logs -f "$service_name"
+}
+
 # Function to build Docker image
 build_image() {
-    print_status "Building MCP RAG Server Docker image..."
-    cd "$PROJECT_DIR"
+    print_header "Building Docker image..."
+    docker-compose -f "$COMPOSE_FILE" build
     
-    if docker build -f docker/Dockerfile -t mcp-rag-server .; then
+    if [ $? -eq 0 ]; then
         print_status "Docker image built successfully"
     else
         print_error "Failed to build Docker image"
@@ -48,22 +151,20 @@ build_image() {
 
 # Function to rebuild Docker image from scratch
 rebuild_image() {
-    print_status "Rebuilding MCP RAG Server Docker image from scratch (no cache)..."
-    cd "$PROJECT_DIR"
+    print_header "Rebuilding Docker image from scratch..."
     
     # Stop services if running
-    if docker-compose -f docker/docker-compose.yml ps | grep -q "Up"; then
-        print_warning "Stopping running services before rebuild..."
-        docker-compose -f docker/docker-compose.yml down
+    if docker-compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
+        print_warning "Stopping running services..."
+        stop_services
     fi
     
     # Remove existing image
     print_status "Removing existing Docker image..."
-    docker rmi mcp-rag-server 2>/dev/null || true
+    docker-compose -f "$COMPOSE_FILE" build --no-cache
     
-    # Build image with no cache
-    if docker build --no-cache -f docker/Dockerfile -t mcp-rag-server .; then
-        print_status "Docker image rebuilt successfully from scratch"
+    if [ $? -eq 0 ]; then
+        print_status "Docker image rebuilt successfully"
         
         # Ask if user wants to start services
         read -p "Do you want to start the services now? (y/n): " -n 1 -r
@@ -77,260 +178,139 @@ rebuild_image() {
     fi
 }
 
-# Function to start services
-start_services() {
-    print_status "Starting MCP RAG Server with Docker Compose..."
-    cd "$PROJECT_DIR/docker"
-    
-    # Check if services are already running
-    if docker-compose ps | grep -q "Up"; then
-        print_warning "Services are already running"
-        return 1
-    fi
-    
-    # Start services
-    if docker-compose up -d; then
-        print_status "Services started successfully"
-        print_status "Waiting for services to be ready..."
-        
-        # Wait for services to be healthy
-        local count=0
-        while [ $count -lt 30 ]; do
-            if docker-compose ps | grep -q "healthy"; then
-                print_status "All services are healthy"
-                show_status
-                return 0
-            fi
-            sleep 2
-            ((count++))
-        done
-        
-        print_warning "Services may not be fully ready yet"
-        show_status
-    else
-        print_error "Failed to start services"
-        exit 1
-    fi
-}
-
-# Function to stop services
-stop_services() {
-    print_status "Stopping MCP RAG Server services..."
-    cd "$PROJECT_DIR/docker"
-    
-    if docker-compose down; then
-        print_status "Services stopped successfully"
-    else
-        print_error "Failed to stop services"
-        exit 1
-    fi
-}
-
-# Function to restart services
-restart_services() {
-    print_status "Restarting MCP RAG Server services..."
-    stop_services
-    sleep 2
-    start_services
-}
-
-# Function to show status
-show_status() {
-    print_status "Service status:"
-    cd "$PROJECT_DIR/docker"
-    docker-compose ps
-    
-    echo ""
-    print_status "Health checks:"
-    
-    # Check Qdrant
-    if curl -s http://localhost:6333/ > /dev/null 2>&1; then
-        print_status "✅ Qdrant is healthy"
-    else
-        print_warning "❌ Qdrant is not responding"
-    fi
-    
-    # Check MCP RAG Server
-    local response=$(curl -s -w "%{http_code}" http://localhost:8001/mcp 2>/dev/null)
-    local status_code="${response: -3}"
-    
-    if [ "$status_code" = "406" ]; then
-        print_status "✅ MCP RAG Server is healthy (MCP endpoint responding)"
-    else
-        print_warning "❌ MCP RAG Server health check failed (Status: $status_code)"
-    fi
-}
-
-# Function to show logs
-show_logs() {
-    print_status "Showing logs (press Ctrl+C to exit)..."
-    cd "$PROJECT_DIR/docker"
-    docker-compose logs -f
-}
-
-# Function to show specific service logs
-show_service_logs() {
-    local service="${2:-mcp-rag-server}"
-    print_status "Showing logs for $service (press Ctrl+C to exit)..."
-    cd "$PROJECT_DIR/docker"
-    docker-compose logs -f "$service"
-}
-
-# Function to clean up
+# Function to clean up Docker resources
 cleanup() {
-    print_status "Cleaning up Docker resources..."
-    cd "$PROJECT_DIR/docker"
+    print_header "Cleaning up Docker resources..."
     
     # Stop and remove containers
-    docker-compose down
+    docker-compose -f "$COMPOSE_FILE" down
     
-    # Remove volumes (optional - uncomment if you want to clear data)
-    # docker-compose down -v
+    # Remove unused images
+    docker image prune -f
     
-    # Remove images
-    docker rmi mcp-rag-server 2>/dev/null || true
+    # Remove unused volumes (optional)
+    read -p "Do you want to remove unused volumes? This will delete all data! (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        docker volume prune -f
+        print_warning "All data has been removed!"
+    fi
     
     print_status "Cleanup completed"
 }
 
-# Function to show environment info
+# Function to show environment information
 show_env() {
-    print_status "Environment information:"
-    echo "Project directory: $PROJECT_DIR"
-    echo "Docker Compose file: $PROJECT_DIR/docker/docker-compose.yml"
-    echo "Dockerfile: $PROJECT_DIR/docker/Dockerfile"
-    echo ""
+    print_header "Environment Information:"
+    echo "Project Name: $PROJECT_NAME"
+    echo "Compose File: $COMPOSE_FILE"
+    echo "Docker Version: $(docker --version)"
+    echo "Docker Compose Version: $(docker-compose --version)"
     
-    if [ -f "$PROJECT_DIR/.env" ]; then
-        print_status "Environment variables:"
-        grep -E "^(GEMINI_API_KEY|QDRANT_URL|MEM0_|FASTMCP_|LOG_LEVEL)=" "$PROJECT_DIR/.env" | sed 's/=.*/=***/'
-    else
-        print_warning ".env file not found"
-    fi
+    print_header "Key Environment Variables:"
+    echo "MCP_GEMINI_API_KEY: ${MCP_GEMINI_API_KEY:0:10}..."  # Show first 10 chars
+    echo "MCP_SERVER_PORT: ${MCP_SERVER_PORT:-8000}"
+    echo "MCP_COLLECTION: ${MCP_COLLECTION:-not set}"
+    echo "MCP_PROJECT_NAMESPACE: ${MCP_PROJECT_NAMESPACE:-not set}"
+    echo "MCP_USER_ID: ${MCP_USER_ID:-default}"
 }
 
 # Function to show volume information
 show_volumes() {
-    print_status "Docker volumes information:"
-    echo ""
+    print_header "Volume Information:"
     
-    # List project volumes
-    local volumes=$(docker volume ls --format "table {{.Name}}\t{{.Driver}}\t{{.Size}}" | grep mcp-rag)
+    # List all volumes
+    docker volume ls | grep "$PROJECT_NAME" || echo "No volumes found"
     
-    if [ -n "$volumes" ]; then
-        echo "Project volumes:"
-        echo "$volumes"
-        echo ""
+    # Show volume details
+    print_header "Volume Details:"
+    for volume in $(docker volume ls -q | grep "$PROJECT_NAME"); do
+        echo "📁 $volume"
+        echo "   Size: $(docker run --rm -v $volume:/data alpine du -sh /data 2>/dev/null || echo 'unknown')"
         
-        # Show volume details
-        print_status "Volume details:"
-        for volume in $(docker volume ls -q | grep mcp-rag); do
-            echo "📁 $volume"
-            
-            # Check if volume has data
-            local file_count=$(docker run --rm -v "$volume:/data" alpine sh -c "find /data -type f 2>/dev/null | wc -l" 2>/dev/null || echo "0")
-            local dir_count=$(docker run --rm -v "$volume:/data" alpine sh -c "find /data -type d 2>/dev/null | wc -l" 2>/dev/null || echo "0")
-            
-            if [ "$file_count" -gt 0 ] || [ "$dir_count" -gt 1 ]; then
-                echo "   Contains: $file_count files, $((dir_count - 1)) directories"
-                
-                # Show sample files for mem0_data
-                if [[ "$volume" == *"mem0_data"* ]]; then
-                    local mem_file=$(docker run --rm -v "$volume:/data" alpine sh -c "ls -la /data/memories.json 2>/dev/null || echo 'No memories.json found'" 2>/dev/null)
-                    if [[ "$mem_file" != "No memories.json found" ]]; then
-                        echo "   📄 memories.json exists"
-                    fi
-                fi
-                
-                # Show sample files for qdrant_data
-                if [[ "$volume" == *"qdrant_data"* ]]; then
-                    local collections=$(docker run --rm -v "$volume:/data" alpine sh -c "ls -la /data/collections/ 2>/dev/null | wc -l" 2>/dev/null || echo "0")
-                    if [ "$collections" -gt 0 ]; then
-                        echo "   🗄️  Qdrant collections exist"
-                    fi
-                fi
-            else
-                echo "   Empty volume"
+        # Check for specific files
+        if [[ $volume == *"mem0"* ]]; then
+            echo "   Contains: $(docker run --rm -v $volume:/data alpine find /data -type f | wc -l) files, $(docker run --rm -v $volume:/data alpine find /data -type d | wc -l) directories"
+            if docker run --rm -v $volume:/data alpine test -f /data/memories.json; then
+                echo "   📄 memories.json exists"
             fi
-            echo ""
-        done
-    else
-        print_warning "No project volumes found"
-    fi
-    
-    echo "💡 Tip: Volumes persist across rebuilds and container restarts"
-    echo "   To clear all data, use: $0 cleanup"
-    echo "   Then manually remove volumes if needed"
+        elif [[ $volume == *"qdrant"* ]]; then
+            echo "   Contains: $(docker run --rm -v $volume:/data alpine find /data -type f | wc -l) files, $(docker run --rm -v $volume:/data alpine find /data -type d | wc -l) directories"
+            echo "   🗄️  Qdrant collections exist"
+        fi
+        echo ""
+    done
+}
+
+# Function to show help
+show_help() {
+    echo "MCP RAG Server Docker Management Script"
+    echo ""
+    echo "Usage: $0 [COMMAND]"
+    echo ""
+    echo "Commands:"
+    echo "  start           Start all services"
+    echo "  stop            Stop all services"
+    echo "  restart         Restart all services"
+    echo "  status          Show service status and health checks"
+    echo "  logs            Show logs for all services"
+    echo "  logs-service    Show logs for a specific service (e.g., qdrant, mcp-rag-server)"
+    echo "  build           Build Docker image (with cache)"
+    echo "  rebuild         Rebuild Docker image from scratch (no cache)"
+    echo "  cleanup         Clean up Docker resources (containers, images, volumes)"
+    echo "  env             Show environment information"
+    echo "  volumes         Show volume information and data"
+    echo "  help            Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 start                    # Start all services"
+    echo "  $0 logs-service qdrant      # Show Qdrant logs"
+    echo "  $0 rebuild                  # Rebuild image from scratch"
+    echo ""
 }
 
 # Main script logic
-case "${1:-}" in
+case "${1:-help}" in
     start)
-        check_docker
         start_services
         ;;
     stop)
-        check_docker
         stop_services
         ;;
     restart)
-        check_docker
         restart_services
         ;;
     status)
-        check_docker
         show_status
         ;;
     logs)
-        check_docker
         show_logs
         ;;
     logs-service)
-        check_docker
-        show_service_logs "$@"
+        show_service_logs "$2"
         ;;
     build)
-        check_docker
         build_image
         ;;
     rebuild)
-        check_docker
         rebuild_image
         ;;
     cleanup)
-        check_docker
         cleanup
         ;;
     env)
         show_env
         ;;
     volumes)
-        check_docker
         show_volumes
         ;;
+    help|--help|-h)
+        show_help
+        ;;
     *)
-        echo "Usage: $0 {start|stop|restart|status|logs|logs-service|build|rebuild|cleanup|env|volumes}"
+        print_error "Unknown command: $1"
         echo ""
-        echo "Commands:"
-        echo "  start        - Start the MCP RAG Server with Docker Compose"
-        echo "  stop         - Stop the MCP RAG Server services"
-        echo "  restart      - Restart the MCP RAG Server services"
-        echo "  status       - Show service status and health checks"
-        echo "  logs         - Show logs from all services (follow mode)"
-        echo "  logs-service - Show logs from specific service (e.g., logs-service qdrant)"
-        echo "  build        - Build the Docker image"
-        echo "  rebuild      - Rebuild the Docker image from scratch (no cache)"
-        echo "  cleanup      - Clean up Docker resources (containers, images)"
-        echo "  env          - Show environment information"
-        echo "  volumes      - Show Docker volume information"
-        echo ""
-        echo "Examples:"
-        echo "  $0 start                    # Start all services"
-        echo "  $0 logs-service mcp-rag-server  # Show MCP server logs"
-        echo "  $0 logs-service qdrant      # Show Qdrant logs"
-        echo "  $0 rebuild                  # Rebuild Docker image from scratch"
-        echo "  $0 build                    # Build Docker image (with cache)"
-        echo "  $0 volumes                  # Show volume information and data"
+        show_help
         exit 1
         ;;
 esac 

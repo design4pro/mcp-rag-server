@@ -34,14 +34,14 @@ services:
       - MCP_GEMINI_EMBEDDING_MODEL=${MCP_GEMINI_EMBEDDING_MODEL:-text-embedding-004}
       - MCP_GEMINI_MAX_TOKENS=${MCP_GEMINI_MAX_TOKENS:-4096}
       - MCP_GEMINI_TEMPERATURE=${MCP_GEMINI_TEMPERATURE:-0.5}
-      
+
       # Qdrant Configuration - Mobile App Project
       - MCP_QDRANT_URL=${MCP_QDRANT_URL:-http://qdrant:6333}
       - MCP_COLLECTION_NAME=${MCP_COLLECTION_NAME:-documents}
       - MCP_COLLECTION=mobile_app
       - MCP_VECTOR_SIZE=${MCP_VECTOR_SIZE:-768}
       - MCP_QDRANT_DISTANCE_METRIC=${MCP_QDRANT_DISTANCE_METRIC:-Cosine}
-      
+
       # Mem0 Configuration - Mobile App Project
       - MCP_MEM0_SELF_HOSTED=${MCP_MEM0_SELF_HOSTED:-true}
       - MCP_MEM0_STORAGE_PATH=${MCP_MEM0_STORAGE_PATH:-/app/mem0_data}
@@ -56,7 +56,7 @@ services:
       - MCP_MEM0_RECENCY_WEIGHT=${MCP_MEM0_RECENCY_WEIGHT:-0.1}
       - MCP_MEM0_MAX_MEMORY_CONTEXT_LENGTH=${MCP_MEM0_MAX_MEMORY_CONTEXT_LENGTH:-2000}
       - MCP_MEM0_ENABLE_MEMORY_SUMMARIZATION=${MCP_MEM0_ENABLE_MEMORY_SUMMARIZATION:-true}
-      
+
       # MCP Server Configuration
       - MCP_SERVER_HOST=${MCP_SERVER_HOST:-0.0.0.0}
       - MCP_SERVER_PORT=${MCP_SERVER_PORT:-8000}
@@ -73,7 +73,8 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${MCP_SERVER_PORT:-8000}/mcp/"]
+      test:
+        ["CMD", "curl", "-f", "http://localhost:${MCP_SERVER_PORT:-8000}/mcp/"]
       interval: 30s
       timeout: 10s
       retries: 3

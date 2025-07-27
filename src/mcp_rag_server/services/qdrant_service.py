@@ -7,6 +7,7 @@ document storage, retrieval, and similarity search.
 
 import logging
 import uuid
+import asyncio
 from typing import List, Dict, Any, Optional
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
@@ -29,26 +30,46 @@ class QdrantService:
     
     async def initialize(self):
         """Initialize the Qdrant client and create collection if needed."""
-        try:
-            # Initialize client (no API key needed for local Docker)
-            self.client = QdrantClient(url=self.config.url)
-            
-            # Build collection name with prefix for project isolation
-            self.collection_name = self._get_collection_name()
-            
-            # Check if collection exists, create if not
-            collections = self.client.get_collections()
-            collection_names = [col.name for col in collections.collections]
-            
-            if self.collection_name not in collection_names:
-                await self._create_collection()
-                logger.info(f"Created collection: {self.collection_name}")
-            else:
-                logger.info(f"Using existing collection: {self.collection_name}")
-            
-        except Exception as e:
-            logger.error(f"Error initializing Qdrant service: {e}")
-            raise
+        max_retries = 10
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Attempting to connect to Qdrant at {self.config.url} (attempt {attempt + 1}/{max_retries})")
+                
+                # Initialize client (no API key needed for local Docker)
+                self.client = QdrantClient(url=self.config.url)
+                
+                # Test connection
+                self.client.get_collections()
+                logger.info("Successfully connected to Qdrant")
+                
+                # Build collection name with prefix for project isolation
+                self.collection_name = self._get_collection_name()
+                
+                # Check if collection exists, create if not
+                collections = self.client.get_collections()
+                collection_names = [col.name for col in collections.collections]
+                
+                if self.collection_name not in collection_names:
+                    await self._create_collection()
+                    logger.info(f"Created collection: {self.collection_name}")
+                else:
+                    logger.info(f"Using existing collection: {self.collection_name}")
+                
+                # Success - break out of retry loop
+                break
+                
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {e}")
+                
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying in {retry_delay} seconds...")
+                    await asyncio.sleep(retry_delay)
+                    retry_delay = min(retry_delay * 1.5, 10)  # Exponential backoff with max 10s
+                else:
+                    logger.error(f"Failed to connect to Qdrant after {max_retries} attempts")
+                    raise
     
     def _get_collection_name(self) -> str:
         """Get collection name with prefix for project isolation."""

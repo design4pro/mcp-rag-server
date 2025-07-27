@@ -33,6 +33,7 @@ globs: *
 - During integration tests, `Mem0Service` must be initialized in a way that **bypasses any external API requirements** and uses only local file-based storage.
 - All MCP RAG tools must function correctly and stably.
 - The MCP RAG server should support configuration via environment variables to separate "memory" between projects. This includes the ability to change the Qdrant collection name or user ID.
+- If no `user_id` is explicitly provided to the RAG API, the default `user_id` is used. To ensure project isolation, always provide the correct `user_id` (e.g., `acme_team`) in RAG API requests.
 
 ## TECH STACK
 
@@ -62,25 +63,144 @@ globs: *
 
 - Project documentation is maintained using Obsidian-style markdown.
 - The user prefers the Coursor IDE for `mcpServers` configuration.
+- The `mcpServers` configuration in Cursor IDE can launch and stop Docker containers automatically. To achieve this, the `command` should be `docker run` instead of `docker exec`. The `docker run` configuration should include all necessary environment variables for the specific project.
 - When configuring Coursor IDE, use a `mcpServers.json` file like this:
 
 ```json
-[
-  {
-    "name": "MCP RAG Server",
-    "description": "Local MCP RAG server with Qdrant (Docker), self-hosted mem0, Gemini API",
-    "command": "python",
-    "args": ["run_server_http.py"],
-    "env": {
-      "MCP_GEMINI_API_KEY": "your_gemini_api_key_here",
-      "MCP_QDRANT_URL": "http://localhost:6333",
-      "MCP_MEM0_SELF_HOSTED": "true",
-      "MCP_MEM0_STORAGE_PATH": "./mem0_data",
-      "MCP_SERVER_HOST": "127.0.0.1",
-      "MCP_SERVER_PORT": "8001"
+{
+    "rag": {
+        "command": "docker",
+        "args": [
+            "run",
+            "-i",
+            "--rm",
+            "--name",
+            "mcp-rag-default",
+            "-p",
+            "8001:8000",
+            "-e",
+            "MCP_GEMINI_API_KEY=AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g",
+            "-e",
+            "MCP_COLLECTION=default",
+            "-e",
+            "MCP_PROJECT_NAMESPACE=default",
+            "-e",
+            "MCP_USER_ID=default",
+            "-e",
+            "MCP_SERVER_PORT=8000",
+            "-e",
+            "MCP_LOG_LEVEL=INFO",
+            "-e",
+            "MCP_QDRANT_URL=http://host.docker.internal:6333",
+            "-e",
+            "MCP_MEM0_STORAGE_PATH=/app/mem0_data",
+            "-v",
+            "mcp_rag_mem0_data_default:/app/mem0_data",
+            "ghcr.io/rafalwolak/mcp-rag:latest"
+        ],
+        "type": "stdio"
+    },
+    "rag-web-dev": {
+        "command": "docker",
+        "args": [
+            "run",
+            "-i",
+            "--rm",
+            "--name",
+            "mcp-rag-web-dev",
+            "-p",
+            "8002:8000",
+            "-e",
+            "MCP_GEMINI_API_KEY=AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g",
+            "-e",
+            "MCP_COLLECTION=web_dev",
+            "-e",
+            "MCP_PROJECT_NAMESPACE=web_development",
+            "-e",
+            "MCP_USER_ID=web_dev_team",
+            "-e",
+            "MCP_SERVER_PORT=8000",
+            "-e",
+            "MCP_LOG_LEVEL=INFO",
+            "-e",
+            "MCP_QDRANT_URL=http://host.docker.internal:6333",
+            "-e",
+            "MCP_MEM0_STORAGE_PATH=/app/mem0_data",
+            "-v",
+            "mcp_rag_mem0_data_web_dev:/app/mem0_data",
+            "ghcr.io/rafalwolak/mcp-rag:latest"
+        ],
+        "type": "stdio"
+    },
+    "rag-mobile": {
+        "command": "docker",
+        "args": [
+            "run",
+            "-i",
+            "--rm",
+            "--name",
+            "mcp-rag-mobile",
+            "-p",
+            "8003:8000",
+            "-e",
+            "MCP_GEMINI_API_KEY=AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g",
+            "-e",
+            "MCP_COLLECTION=mobile_app",
+            "-e",
+            "MCP_PROJECT_NAMESPACE=mobile_development",
+            "-e",
+            "MCP_USER_ID=mobile_dev_team",
+            "-e",
+            "MCP_SERVER_PORT=8000",
+            "-e",
+            "MCP_LOG_LEVEL=INFO",
+            "-e",
+            "MCP_QDRANT_URL=http://host.docker.internal:6333",
+            "-e",
+            "MCP_MEM0_STORAGE_PATH=/app/mem0_data",
+            "-v",
+            "mcp_rag_mem0_data_mobile:/app/mem0_data",
+            "ghcr.io/rafalwolak/mcp-rag:latest"
+        ],
+        "type": "stdio"
+    },
+    "rag-acme": {
+        "command": "docker",
+        "args": [
+            "run",
+            "-i",
+            "--rm",
+            "--name",
+            "mcp-rag-acme",
+            "-p",
+            "8004:8000",
+            "-e",
+            "MCP_GEMINI_API_KEY=AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g",
+            "-e",
+            "MCP_COLLECTION=client_acme",
+            "-e",
+            "MCP_PROJECT_NAMESPACE=acme_corp",
+            "-e",
+            "MCP_USER_ID=acme_team",
+            "-e",
+            "MCP_SERVER_PORT=8000",
+            "-e",
+            "MCP_LOG_LEVEL=DEBUG",
+            "-e",
+            "MCP_SESSION_TIMEOUT_HOURS=12",
+            "-e",
+            "MCP_MAX_SESSIONS_PER_USER=5",
+            "-e",
+            "MCP_QDRANT_URL=http://host.docker.internal:6333",
+            "-e",
+            "MCP_MEM0_STORAGE_PATH=/app/mem0_data",
+            "-v",
+            "mcp_rag_mem0_data_acme:/app/mem0_data",
+            "ghcr.io/rafalwolak/mcp-rag:latest"
+        ],
+        "type": "stdio"
     }
-  }
-]
+}
 ```
 
 - Troubleshooting documentation is located in `docs/05-troubleshooting/troubleshooting-guide.md`.
@@ -125,6 +245,8 @@ docs/
     environment-variables-configuration-guide.md
     mcp-vs-fastmcp-configuration-guide.md
     unified-mcp-environment-variables-guide.md
+    docker-port-mapping-and-healthcheck-guide.md
+    cursor-ide-automatic-container-management.md
   03-api/
     api-reference.md
   04-development/
@@ -388,7 +510,7 @@ Comprehensive documentation is available in the `docs/` directory:
 - ✅ All links use proper Obsidian format
 - ✅ Atomic note structure maintained
 - ✅ Comprehensive cross-referencing
-- ✅ Content is in English
+- ✅ English language throughout
 - ✅ Logical folder organization
 
 #### Efficiency Indicators
@@ -709,192 +831,3 @@ The MCP RAG Server provides comprehensive tools for sequential task analysis bef
 - Provides confidence scoring
 
 **Use Case**: Initial task decomposition and understanding
-
-#### 2. Chain-of-Thought Reasoning
-**Tool**: `mcp_rag_chain_of_thought_reasoning`
-
-**Purpose**: Step-by-step logical reasoning
-- Breaks down complex tasks into sequential steps
-- Provides deductive reasoning at each step
-- Maintains reasoning chain with confidence levels
-- Configurable number of reasoning steps
-
-**Use Case**: Detailed task analysis with logical progression
-
-#### 3. Multi-Hop Reasoning
-**Tool**: `mcp_rag_multi_hop_reasoning`
-
-**Purpose**: Multi-stage reasoning with context building
-- Performs iterative reasoning across multiple hops
-- Builds context progressively
-- Maintains plan validity throughout hops
-- Provides comprehensive final context
-
-**Use Case**: Complex task planning with iterative refinement
-
-#### 4. Context Analysis
-**Tool**: `mcp_rag_analyze_context`
-
-**Purpose**: Contextual understanding of tasks
-- Analyzes task context and requirements
-- Identifies relevant background information
-- Provides contextual insights for task execution
-
-**Use Case**: Understanding task environment and constraints
-
-#### 5. Memory-Enhanced Analysis
-**Tool**: `mcp_rag_get_enhanced_memory_context`
-
-**Purpose**: Leverages user memory for task analysis
-- Incorporates historical context and patterns
-- Provides personalized task understanding
-- Enhances analysis with user-specific insights
-
-**Use Case**: Personalized task analysis based on user history
-
-### Sequential Analysis Workflow
-
-#### Phase 1: Task Understanding
-1. **Query Analysis**: Use `advanced_query_understanding` to decompose the task
-2. **Context Extraction**: Analyze relevant context using `analyze_context`
-3. **Memory Integration**: Incorporate user memory context
-
-#### Phase 2: Task Planning
-1. **Chain-of-Thought**: Break down task into logical steps
-2. **Multi-Hop Reasoning**: Iteratively refine the plan
-3. **Context Validation**: Ensure plan aligns with available context
-
-#### Phase 3: Execution Preparation
-1. **Resource Identification**: Determine required resources
-2. **Dependency Mapping**: Identify task dependencies
-3. **Risk Assessment**: Evaluate potential challenges
-
-### Example Analysis Sequence
-
-#### Input Task
-"Przygotuj plan implementacji systemu zarządzania zadaniami z priorytetami, deadline'ami i przypisaniem użytkowników"
-
-#### Analysis Results
-
-##### 1. Query Understanding
-- **Reasoning Type**: Planning
-- **Complexity**: Simple
-- **Confidence**: 0.8
-- **Intent**: General planning task
-
-##### 2. Chain-of-Thought Analysis
-- **Steps Completed**: 3
-- **Reasoning Type**: Deductive
-- **Overall Confidence**: 0.5
-
-##### 3. Multi-Hop Planning
-- **Hops**: 1 completed
-- **Plan Generated**: 4-step implementation plan
-- **Plan Validity**: Confirmed
-
-### Benefits of Sequential Analysis
-
-#### 1. Systematic Approach
-- Ensures comprehensive task understanding
-- Prevents overlooking critical aspects
-- Provides structured execution path
-
-#### 2. Context Awareness
-- Incorporates historical context
-- Considers user-specific patterns
-- Adapts to current environment
-
-#### 3. Quality Assurance
-- Multiple validation layers
-- Confidence scoring at each step
-- Iterative refinement capabilities
-
-#### 4. Resource Optimization
-- Identifies required resources early
-- Prevents resource conflicts
-- Optimizes execution efficiency
-
-### Integration with RAG Capabilities
-
-#### Document Context
-- Leverages stored documents for task analysis
-- Provides relevant examples and templates
-- Enhances analysis with domain knowledge
-
-#### Memory Integration
-- Uses user memory for personalized analysis
-- Incorporates historical task patterns
-- Provides context-aware recommendations
-
-#### Session Management
-- Maintains analysis context across sessions
-- Tracks analysis progress and results
-- Enables collaborative task analysis
-
-### Best Practices
-
-#### 1. Analysis Depth
-- Use appropriate analysis depth for task complexity
-- Balance thoroughness with efficiency
-- Adapt analysis approach to task type
-
-#### 2. Context Utilization
-- Maximize use of available context
-- Incorporate relevant documents and memories
-- Consider environmental factors
-
-#### 3. Validation
-- Validate analysis results at each step
-- Cross-reference with multiple reasoning approaches
-- Ensure plan feasibility and completeness
-
-#### 4. Documentation
-- Document analysis process and results
-- Maintain analysis history for future reference
-- Share insights across team members
-
-### Technical Implementation
-
-#### Service Architecture
-- **Reasoning Service**: Core reasoning engine
-- **Context Service**: Context management and analysis
-- **Memory Service**: User memory integration
-- **Session Service**: Analysis session management
-
-#### Performance Considerations
-- Optimized reasoning algorithms
-- Efficient context retrieval
-- Scalable memory management
-- Fast response times for analysis requests
-
-### Future Enhancements
-
-#### Planned Features
-- **Collaborative Analysis**: Multi-user task analysis
-- **Advanced Reasoning**: More sophisticated reasoning algorithms
-- **Visual Analysis**: Graphical task breakdown
-- **Predictive Analysis**: Outcome prediction based on analysis
-
-#### Integration Opportunities
-- **Project Management Tools**: Direct integration with PM systems
-- **Development Environments**: IDE integration for code tasks
-- **Communication Platforms**: Team collaboration integration
-- **Analytics Platforms**: Analysis performance tracking
-
-### Conclusion
-
-The MCP RAG Server's sequential task analysis capabilities provide a powerful foundation for systematic task understanding and planning. By combining multiple reasoning approaches with context awareness and memory integration, the system enables comprehensive task analysis before execution, leading to better outcomes and more efficient resource utilization.
-
-## Project Isolation Configuration in MCP RAG Server
-
-### Overview
-
-The MCP RAG Server now supports project isolation to prevent data mixing between different projects, clients, and technologies. This feature ensures that each project maintains its own separate memory and document storage.
-
-### Why Project Isolation is Important
-
-#### Problems with Mixed Data
-1. **Context Pollution**: Analysis may be based on irrelevant data from other projects
-2. **False Associations**: System may connect concepts from different domains
-3. **Reduced Precision**: Noise in data decreases response quality
-4. **Privacy Issues**: Data from different clients gets mixed together

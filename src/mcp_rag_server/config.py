@@ -95,5 +95,23 @@ class Config(BaseSettings):
         extra = "ignore"
 
 
-# Global configuration instance
-config = Config()
+# Global configuration instance with error handling
+def get_config() -> Config:
+    """Get configuration with proper error handling."""
+    try:
+        return Config()
+    except Exception as e:
+        import os
+        import sys
+        
+        # Print helpful error message
+        print(f"Configuration error: {e}")
+        print("Environment variables:")
+        for key, value in os.environ.items():
+            if key.startswith('MCP_'):
+                print(f"  {key}: {value[:10]}..." if len(value) > 10 else f"  {key}: {value}")
+        
+        print("\nPlease check your .env file and ensure MCP_GEMINI_API_KEY is set.")
+        sys.exit(1)
+
+config = get_config()

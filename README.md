@@ -61,6 +61,7 @@ mcp-rag/
 ## 📁 Data Organization
 
 All application data is organized in the `data/` folder:
+
 - **`data/mem0_data/`**: Stores conversation memories and user data
 - **`data/session_data/`**: Stores user session information and statistics
 - **`data/test_mem0_data/`**: Test-specific memory data for development
@@ -91,7 +92,17 @@ cp .env.example .env
 # Start Qdrant
 docker run -d -p 6333:6333 -p 6334:6334 qdrant/qdrant:latest
 
-# Start MCP RAG Server
+# Option 1: Use Cursor IDE (Recommended)
+# Enable RAG tools in Cursor IDE - containers start automatically
+
+# Option 2: Manual Docker run
+docker run -i --rm \
+  -p 8001:8000 \
+  -e MCP_GEMINI_API_KEY=your_api_key \
+  -e MCP_QDRANT_URL=http://host.docker.internal:6333 \
+  ghcr.io/design4pro/mcp-rag-server:latest
+
+# Option 3: Use scripts
 ./scripts/manage_server.sh start
 ```
 
@@ -129,6 +140,8 @@ Comprehensive documentation is available in the `docs/` directory:
 - **Project Overview**: [[docs/00-overview/project-overview.md]]
 - **System Architecture**: [[docs/01-architecture/system-architecture.md]]
 - **Installation Guide**: [[docs/02-installation/installation-guide.md]]
+- **Cursor IDE Setup**: [[docs/02-installation/cursor-ide-automatic-container-management|Cursor IDE Automatic Container Management]]
+- **Docker Registry**: [[docs/02-installation/docker-registry-publishing-guide|Docker Registry Publishing Guide]]
 - **API Reference**: [[docs/03-api/api-reference.md]]
 - **Development Phases**: [[docs/04-development/phases/development-phases-overview.md]]
 - **Troubleshooting**: [[docs/05-troubleshooting/troubleshooting-guide.md]]
@@ -143,6 +156,7 @@ The project includes comprehensive test coverage:
 - **Error Handling**: Comprehensive error scenario testing
 
 Run tests with:
+
 ```bash
 python -m pytest tests/ -v
 ```
