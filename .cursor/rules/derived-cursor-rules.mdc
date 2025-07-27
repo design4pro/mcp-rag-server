@@ -123,6 +123,7 @@ docs/
     installation-guide.md
     project-isolation-configuration.md
     environment-variables-configuration-guide.md
+    mcp-vs-fastmcp-configuration-guide.md
   03-api/
     api-reference.md
   04-development/
@@ -386,7 +387,7 @@ Comprehensive documentation is available in the `docs/` directory:
 - ✅ All links use proper Obsidian format
 - ✅ Atomic note structure maintained
 - ✅ Comprehensive cross-referencing
-- ✅ English language throughout
+- ✅ Content is in English
 - ✅ Logical folder organization
 
 #### Efficiency Indicators
@@ -926,7 +927,4 @@ QDRANT_COLLECTION_PREFIX=tech_x
 
 **Usage**:
 ```bash
-# For Project A
-MEM0_PROJECT_NAMESPACE=project_a
-
-# For Client
+# For

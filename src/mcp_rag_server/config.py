@@ -13,38 +13,38 @@ from pydantic_settings import BaseSettings
 class GeminiConfig(BaseSettings):
     """Configuration for Gemini API integration."""
     
-    api_key: str = Field(..., env="GEMINI_API_KEY", description="Gemini API key")
+    api_key: str = Field(..., env="MCP_GEMINI_API_KEY", description="Gemini API key")
     model: str = Field(default="gemini-2.0-flash-exp", description="Gemini model to use")
     embedding_model: str = Field(default="text-embedding-004", description="Embedding model")
     max_tokens: int = Field(default=4096, description="Maximum tokens for generation")
     temperature: float = Field(default=0.7, description="Temperature for generation")
     
     class Config:
-        env_prefix = "GEMINI_"
+        env_prefix = "MCP_GEMINI_"
 
 
 class QdrantConfig(BaseSettings):
     """Configuration for Qdrant vector database."""
     
-    url: str = Field(default="http://localhost:6333", env="QDRANT_URL")
-    collection_name: str = Field(default="documents", env="COLLECTION_NAME")
-    collection_prefix: str = Field(default="", env="COLLECTION_PREFIX", description="Prefix for collection names to support multi-project isolation")
-    vector_size: int = Field(default=768, env="VECTOR_SIZE")
+    url: str = Field(default="http://localhost:6333", env="MCP_QDRANT_URL")
+    collection_name: str = Field(default="documents", env="MCP_COLLECTION_NAME")
+    collection_prefix: str = Field(default="", env="MCP_COLLECTION", description="Prefix for collection names to support multi-project isolation")
+    vector_size: int = Field(default=768, env="MCP_VECTOR_SIZE")
     distance_metric: str = Field(default="Cosine", description="Distance metric for vectors")
     
     class Config:
-        env_prefix = "QDRANT_"
+        env_prefix = "MCP_QDRANT_"
 
 
 class Mem0Config(BaseSettings):
     """Configuration for Mem0 memory layer."""
     
     # Local storage path (fallback when mem0 package is not available)
-    local_storage_path: str = Field(default="./data/mem0_data", env="MEM0_LOCAL_STORAGE_PATH")
+    local_storage_path: str = Field(default="./data/mem0_data", env="MCP_MEM0_STORAGE_PATH")
     
     # Project isolation settings
-    project_namespace: str = Field(default="", env="PROJECT_NAMESPACE", description="Namespace for project isolation in memory storage")
-    default_user_id: str = Field(default="default", env="DEFAULT_USER_ID", description="Default user ID for the project")
+    project_namespace: str = Field(default="", env="MCP_PROJECT_NAMESPACE", description="Namespace for project isolation in memory storage")
+    default_user_id: str = Field(default="default", env="MCP_USER_ID", description="Default user ID for the project")
     
     # Memory settings
     memory_size: int = Field(default=1000, description="Maximum memory entries per user")
@@ -60,7 +60,7 @@ class Mem0Config(BaseSettings):
     enable_memory_summarization: bool = Field(default=True, description="Enable memory summarization for long contexts")
     
     class Config:
-        env_prefix = "MEM0_"
+        env_prefix = "MCP_MEM0_"
 
 
 class ServerConfig(BaseSettings):
@@ -68,8 +68,8 @@ class ServerConfig(BaseSettings):
     
     host: str = Field(default="localhost", env="MCP_SERVER_HOST")
     port: int = Field(default=8000, env="MCP_SERVER_PORT")
-    log_level: str = Field(default="INFO", env="LOG_LEVEL")
-    debug: bool = Field(default=False, env="DEBUG")
+    log_level: str = Field(default="INFO", env="MCP_LOG_LEVEL")
+    debug: bool = Field(default=False, env="MCP_DEBUG")
     
     # Session management settings
     session_timeout_hours: int = Field(default=24, description="Session timeout in hours")

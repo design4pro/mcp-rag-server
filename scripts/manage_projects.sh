@@ -269,7 +269,7 @@ show_project_config() {
     echo ""
     echo "Key Environment Variables:"
     echo "-------------------------"
-    grep -E "QDRANT_COLLECTION_PREFIX|MEM0_PROJECT_NAMESPACE|MEM0_DEFAULT_USER_ID" "$compose_file" | sed 's/^[[:space:]]*- //'
+    grep -E "MCP_COLLECTION|MCP_PROJECT_NAMESPACE|MCP_USER_ID" "$compose_file" | sed 's/^[[:space:]]*- //'
     
     echo ""
 }
