@@ -60,3 +60,38 @@ docker/.env
 # Temporary files
 *.tmp
 *.temp
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Performance and benchmark files
+benchmark_results_*.json
+performance_*.json
+unit-test-results.txt
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Rope project settings
+.ropeproject/
+
+# SpecStory history
+.specstory/
+
+# Cursor IDE
+.cursor/
+.cursorindexingignore
+.cursorignore

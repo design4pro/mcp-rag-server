@@ -46,6 +46,37 @@ build_image() {
     fi
 }
 
+# Function to rebuild Docker image from scratch
+rebuild_image() {
+    print_status "Rebuilding MCP RAG Server Docker image from scratch (no cache)..."
+    cd "$PROJECT_DIR"
+    
+    # Stop services if running
+    if docker-compose -f docker/docker-compose.yml ps | grep -q "Up"; then
+        print_warning "Stopping running services before rebuild..."
+        docker-compose -f docker/docker-compose.yml down
+    fi
+    
+    # Remove existing image
+    print_status "Removing existing Docker image..."
+    docker rmi mcp-rag-server 2>/dev/null || true
+    
+    # Build image with no cache
+    if docker build --no-cache -f docker/Dockerfile -t mcp-rag-server .; then
+        print_status "Docker image rebuilt successfully from scratch"
+        
+        # Ask if user wants to start services
+        read -p "Do you want to start the services now? (y/n): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            start_services
+        fi
+    else
+        print_error "Failed to rebuild Docker image"
+        exit 1
+    fi
+}
+
 # Function to start services
 start_services() {
     print_status "Starting MCP RAG Server with Docker Compose..."
@@ -178,6 +209,60 @@ show_env() {
     fi
 }
 
+# Function to show volume information
+show_volumes() {
+    print_status "Docker volumes information:"
+    echo ""
+    
+    # List project volumes
+    local volumes=$(docker volume ls --format "table {{.Name}}\t{{.Driver}}\t{{.Size}}" | grep mcp-rag)
+    
+    if [ -n "$volumes" ]; then
+        echo "Project volumes:"
+        echo "$volumes"
+        echo ""
+        
+        # Show volume details
+        print_status "Volume details:"
+        for volume in $(docker volume ls -q | grep mcp-rag); do
+            echo "📁 $volume"
+            
+            # Check if volume has data
+            local file_count=$(docker run --rm -v "$volume:/data" alpine sh -c "find /data -type f 2>/dev/null | wc -l" 2>/dev/null || echo "0")
+            local dir_count=$(docker run --rm -v "$volume:/data" alpine sh -c "find /data -type d 2>/dev/null | wc -l" 2>/dev/null || echo "0")
+            
+            if [ "$file_count" -gt 0 ] || [ "$dir_count" -gt 1 ]; then
+                echo "   Contains: $file_count files, $((dir_count - 1)) directories"
+                
+                # Show sample files for mem0_data
+                if [[ "$volume" == *"mem0_data"* ]]; then
+                    local mem_file=$(docker run --rm -v "$volume:/data" alpine sh -c "ls -la /data/memories.json 2>/dev/null || echo 'No memories.json found'" 2>/dev/null)
+                    if [[ "$mem_file" != "No memories.json found" ]]; then
+                        echo "   📄 memories.json exists"
+                    fi
+                fi
+                
+                # Show sample files for qdrant_data
+                if [[ "$volume" == *"qdrant_data"* ]]; then
+                    local collections=$(docker run --rm -v "$volume:/data" alpine sh -c "ls -la /data/collections/ 2>/dev/null | wc -l" 2>/dev/null || echo "0")
+                    if [ "$collections" -gt 0 ]; then
+                        echo "   🗄️  Qdrant collections exist"
+                    fi
+                fi
+            else
+                echo "   Empty volume"
+            fi
+            echo ""
+        done
+    else
+        print_warning "No project volumes found"
+    fi
+    
+    echo "💡 Tip: Volumes persist across rebuilds and container restarts"
+    echo "   To clear all data, use: $0 cleanup"
+    echo "   Then manually remove volumes if needed"
+}
+
 # Main script logic
 case "${1:-}" in
     start)
@@ -208,6 +293,10 @@ case "${1:-}" in
         check_docker
         build_image
         ;;
+    rebuild)
+        check_docker
+        rebuild_image
+        ;;
     cleanup)
         check_docker
         cleanup
@@ -215,8 +304,12 @@ case "${1:-}" in
     env)
         show_env
         ;;
+    volumes)
+        check_docker
+        show_volumes
+        ;;
     *)
-        echo "Usage: $0 {start|stop|restart|status|logs|logs-service|build|cleanup|env}"
+        echo "Usage: $0 {start|stop|restart|status|logs|logs-service|build|rebuild|cleanup|env|volumes}"
         echo ""
         echo "Commands:"
         echo "  start        - Start the MCP RAG Server with Docker Compose"
@@ -226,13 +319,18 @@ case "${1:-}" in
         echo "  logs         - Show logs from all services (follow mode)"
         echo "  logs-service - Show logs from specific service (e.g., logs-service qdrant)"
         echo "  build        - Build the Docker image"
+        echo "  rebuild      - Rebuild the Docker image from scratch (no cache)"
         echo "  cleanup      - Clean up Docker resources (containers, images)"
         echo "  env          - Show environment information"
+        echo "  volumes      - Show Docker volume information"
         echo ""
         echo "Examples:"
         echo "  $0 start                    # Start all services"
         echo "  $0 logs-service mcp-rag-server  # Show MCP server logs"
         echo "  $0 logs-service qdrant      # Show Qdrant logs"
+        echo "  $0 rebuild                  # Rebuild Docker image from scratch"
+        echo "  $0 build                    # Build Docker image (with cache)"
+        echo "  $0 volumes                  # Show volume information and data"
         exit 1
         ;;
 esac 

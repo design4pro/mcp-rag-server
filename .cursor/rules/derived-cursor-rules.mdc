@@ -31,6 +31,7 @@ globs: *
 - Documentation, action plans, and task lists must be prepared using basic memory notes.
 - When preparing documentation, plan of actions, and lists of tasks, always use the documentation preparation workflow.
 - During integration tests, `Mem0Service` must be initialized in a way that **bypasses any external API requirements** and uses only local file-based storage.
+- All MCP RAG tools must function correctly and stably.
 
 ## TECH STACK
 
@@ -145,6 +146,14 @@ docs/
 - If `get_memory_context` or `get_user_memories` from `Mem0Service` raises an error, ensure that the methods `get_relevant_memories` and `get_memories` are implemented in `Mem0Service`.
 - If `list_documents` or `get_document_stats` from `QdrantService` raises an error, ensure the `list_documents` method is implemented in `QdrantService`.
 - If `get_document` returns "Document not found," verify that the document ID exists in the Qdrant collection.
+- If MCP RAG tools report errors related to missing attributes or methods in `QdrantService` or `Mem0Service`, first restart the MCP RAG server and verify the runtime environment.
+- If encountering `'QdrantService' object has no attribute 'list_documents'` after deploying changes:
+  - Ensure the server is running the correct version of the code.
+  - Verify that the `list_documents` method exists in `src/mcp_rag_server/services/qdrant_service.py`.
+  - Clean Python cache files (`find . -name "*.pyc" -delete && find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true`).
+  - Restart the server.
+  - Ensure the server is running with `PYTHONPATH` set to include the `src/` directory or install the project in editable mode (`pip install -e .`).
+  - If using Docker, rebuild the Docker image to ensure the latest code is used.
 
 ## WORKFLOW & RELEASE RULES
 
@@ -198,7 +207,7 @@ docs/
     - [ ] Context Service Optimization
     - [ ] Advanced Features Implementation
     - [ ] Memory System Optimization
-    - [ ] Integration and Testing
+- Add option to Docker startup script to rebuild the image for the most up-to-date code.
 
 ## DOCUMENTATION PREPARATION WORKFLOW
 
@@ -407,4 +416,270 @@ Comprehensive documentation is available in the `docs/` directory:
 #### Phase 6
 - [x] Advanced AI Reasoning
 - [x] Enhanced Memory Systems
+
+## MCP RAG Tool Testing and Error Summary
+
+### Overview
+
+This section summarizes the results of testing all available MCP RAG tools, identifying tools that are functioning correctly and those with errors.
+
+### Functioning Tools ✅
+
+#### 1. Health Check
+- `mcp_rag_health_check` - ✅ Works
+  - All services (Gemini, Qdrant, Mem0, Session, RAG) are active.
+
+#### 2. Document Management
+- `mcp_rag_add_document` - ✅ Works
+- `mcp_rag_delete_document` - ✅ Works
+
+#### 3. Search and Query
+- `mcp_rag_search_documents` - ✅ Works
+- `mcp_rag_batch_search` - ✅ Works
+- `mcp_rag_get_search_suggestions` - ✅ Works
+
+#### 4. Memory Management
+- `mcp_rag_add_memory` - ✅ Works
+- `mcp_rag_delete_memory` - ✅ Works
+
+#### 5. Session Management
+- `mcp_rag_create_session` - ✅ Works
+- `mcp_rag_get_session_info` - ✅ Works
+- `mcp_rag_list_user_sessions` - ✅ Works
+- `mcp_rag_get_session_stats` - ✅ Works
+- `mcp_rag_expire_session` - ✅ Works
+
+#### 6. System Statistics
+- `mcp_rag_get_system_session_stats` - ✅ Works
+
+#### 7. RAG Question Answering
+- `mcp_rag_ask_question` - ✅ Works (but requires documents in context)
+
+### Tools with Errors ❌
+
+#### 1. Document Management
+- `mcp_rag_list_documents` - ❌ Error: `'QdrantService' object has no attribute 'list_documents'`
+- `mcp_rag_get_document_stats` - ❌ Error: `'QdrantService' object has no attribute 'list_documents'`
+- `mcp_rag_get_document` - ❌ Error: "Document not found"
+
+#### 2. Memory Management
+- `mcp_rag_get_user_memories` - ❌ Error: `'Mem0Service' object has no attribute 'get_memories'`
+- `mcp_rag_get_memory_context` - ❌ Error: `'Mem0Service' object has no attribute 'get_relevant_memories'`
+- `mcp_rag_clear_user_memories` - ❌ Error: `'Mem0Service' object has no attribute 'clear_memories'`
+- `mcp_rag_get_user_session_info` - ❌ Error: `'Mem0Service' object has no attribute 'get_memories'`
+
+### Test Statistics 📊
+
+- **Total tools tested:** 20
+- **Functioning correctly:** 13 (65%)
+- **With errors:** 7 (35%)
+
+### Main Issues to Fix 🔧
+
+1.  **QdrantService** - missing implementation of `list_documents` method.
+2.  **Mem0Service** - missing implementation of the following methods:
+    -   `get_memories`
+    -   `get_relevant_memories`
+    -   `clear_memories`
+
+### Recommendations 💡
+
+1.  **Priority 1:** Fix missing methods in `QdrantService` and `Mem0Service`.
+2.  **Priority 2:** Improve error handling in `get_document` (document exists but is not found).
+3.  **Priority 3:** Add better context handling in `ask_question`.
+
+### Docker Setup (Alternative Installation)
+
+#### Prerequisites
+- **Docker**: 20.10 or higher
+- **Docker Compose**: 2.0 or higher
+
+#### Quick Start with Docker
+```bash
+# Clone repository
+git clone <repository-url>
+cd rag
+
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your API keys
+nano .env
+
+# Start all services with Docker
+./scripts/manage_docker.sh start
 ```
+
+**Note**: Health checks have been optimized for faster startup:
+- Qdrant: 10s intervals, 5s timeout, 15s start period
+- MCP Server: 30s intervals, 10s timeout, 3 retries
+
+#### Docker Management Commands
+```bash
+# Start services
+./scripts/manage_docker.sh start
+
+# Stop services
+./scripts/manage_docker.sh stop
+
+# Restart services
+./scripts/manage_docker.sh restart
+
+# Show status
+./scripts/manage_docker.sh status
+
+# View logs
+./scripts/manage_docker.sh logs
+
+# Build Docker image (with cache)
+./scripts/manage_docker.sh build
+
+# Rebuild Docker image from scratch (no cache)
+./scripts/manage_docker.sh rebuild
+
+# Clean up Docker resources
+./scripts/manage_docker.sh cleanup
+
+# Show environment info
+./scripts/manage_docker.sh env
+
+# Show volume information and data
+./scripts/manage_docker.sh volumes
+```
+
+#### Docker Rebuild Options
+When you make changes to the code and want to update the Docker image:
+
+**Option 1: Quick rebuild (with cache)**
+```bash
+./scripts/manage_docker.sh build
+./scripts/manage_docker.sh restart
+```
+
+**Option 2: Fresh rebuild (no cache) - recommended for major changes**
+```bash
+./scripts/manage_docker.sh rebuild
+```
+This will:
+- Stop running services
+- Remove existing image
+- Build completely fresh image
+- Optionally start services
+
+#### Data Persistence During Rebuild
+**Important**: Your data is preserved during rebuild operations!
+
+The following data is stored in Docker volumes and persists across rebuilds:
+- **Mem0 memories**: Stored in `mem0_data` volume (`memories.json`)
+- **Qdrant documents**: Stored in `qdrant_data` volume (collections, embeddings)
+- **User sessions**: Preserved in persistent storage
+
+**What gets removed during rebuild:**
+- Docker image layers (code changes)
+- Container state (temporary data)
+- Build cache
+
+**What stays preserved:**
+- All user memories and conversations
+- All uploaded documents and embeddings
+- All user sessions and metadata
+- Database collections and indexes
+
+To completely clear all data, use the cleanup command:
+```bash
+./scripts/manage_docker.sh cleanup
+# Then manually remove volumes if needed:
+# docker volume rm mcp-rag_mem0_data mcp-rag_qdrant_data
+```
+
+#### Checking Data Status
+To verify what data is stored in your volumes:
+```bash
+./scripts/manage_docker.sh volumes
+```
+
+This command shows:
+- List of all project volumes
+- File and directory counts in each volume
+- Specific files like `memories.json` for Mem0
+- Qdrant collections status
+- Tips for data management
+
+Example output:
+```
+📁 mcp-rag_mem0_data
+   Contains: 1 files, 0 directories
+   📄 memories.json exists
+
+📁 mcp-rag_qdrant_data
+   Contains: 172 files, 54 directories
+   🗄️  Qdrant collections exist
+```
+
+### Troubleshooting
+
+#### 1. Docker Issues
+**Problem**: Docker containers not starting or failing
+
+**Solution**: Check Docker setup and rebuild if needed:
+```bash
+# Check Docker status
+./scripts/manage_docker.sh status
+
+# View detailed logs
+./scripts/manage_docker.sh logs
+
+# Rebuild from scratch if needed
+./scripts/manage_docker.sh rebuild
+```
+
+**Problem**: Docker image outdated after code changes
+
+**Solution**: Rebuild the Docker image:
+```bash
+# For minor changes (with cache)
+./scripts/manage_docker.sh build
+
+# For major changes (no cache)
+./scripts/manage_docker.sh rebuild
+```
+
+**Problem**: Port conflicts with Docker
+
+**Solution**: Check and change ports in docker-compose.yml:
+```yaml
+ports:
+  - "8001:8001"  # Change 8001 to available port
+```
+
+#### 5. Qdrant "Waiting" Status
+
+**Problem:** When starting the server with `start`, the Qdrant container continuously shows a "waiting" status, even though it initializes quickly.
+
+**Solution:** This often indicates a health check issue. Verify the Qdrant service's health check configuration in `docker-compose.yml` and ensure it aligns with how Qdrant reports its health. The health check might be timing out prematurely. The health check has been optimized with:
+- Shorter intervals (10s instead of 30s)
+- Faster timeouts (5s instead of 10s)
+- Proper start period (15s)
+
+If you still see "waiting" status, check:
+```bash
+# Check container logs
+./scripts/manage_docker.sh logs-service qdrant
+
+# Check health check manually
+docker exec mcp-rag-qdrant timeout 3 bash -c '</dev/tcp/localhost/6333' && echo "OK" || echo "FAILED"
+```
+### Manage Docker Script Usage
+
+- To rebuild the Docker image from scratch, use the following command:
+  ```bash
+  ./scripts/manage_docker.sh rebuild
+  ```
+  This command stops the running services (if active), removes the existing Docker image, rebuilds the image with the `--no-cache` flag, and prompts the user to start the services after the rebuild.
+
+### Differences Between Build and Rebuild Commands
+
+- **`build`**: Performs a quick rebuild using cached layers (suitable for minor changes).
+- **`rebuild`**: Performs a full rebuild without using cached layers (recommended for major changes).
+
+Now you have full control over the Docker image building process, ensuring you always have the latest code in your containers.
