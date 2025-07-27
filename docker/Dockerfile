@@ -25,7 +25,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY src/run_server_http.py ./run_server_http.py
 COPY src/run_server.py ./run_server.py
-COPY .env .
 
 # Create directory for mem0 data
 RUN mkdir -p /app/mem0_data
