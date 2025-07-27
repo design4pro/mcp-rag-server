@@ -27,7 +27,14 @@ class Mem0Service:
         self.memory = None
         self._initialized = False
         self.local_storage = {}
-        self.storage_path = Path(config.local_storage_path)
+        self.storage_path = self._get_storage_path()
+    
+    def _get_storage_path(self) -> Path:
+        """Get storage path with project namespace for isolation."""
+        base_path = Path(self.config.local_storage_path)
+        if self.config.project_namespace:
+            return base_path / self.config.project_namespace
+        return base_path
     
     async def initialize(self):
         """Initialize the mem0 memory layer."""
@@ -262,6 +269,33 @@ class Mem0Service:
         except Exception as e:
             logger.error(f"Error getting user memories: {e}")
             return []
+    
+    async def get_memories(
+        self, 
+        user_id: str, 
+        limit: int = 50,
+        memory_type: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Alias for get_user_memories for compatibility."""
+        return await self.get_user_memories(user_id, limit, memory_type)
+    
+    async def get_relevant_memories(
+        self, 
+        user_id: str, 
+        query: str, 
+        limit: int = 5,
+        memory_type: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Get relevant memories for a query (alias for search_memories)."""
+        return await self.search_memories(user_id, query, limit, memory_type)
+    
+    async def clear_memories(
+        self, 
+        user_id: str, 
+        memory_type: Optional[str] = None
+    ) -> bool:
+        """Alias for clear_user_memories for compatibility."""
+        return await self.clear_user_memories(user_id, memory_type)
     
     async def delete_memory(self, user_id: str, memory_id: str) -> bool:
         """Delete a specific memory entry."""

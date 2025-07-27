@@ -33,25 +33,34 @@ class QdrantService:
             # Initialize client (no API key needed for local Docker)
             self.client = QdrantClient(url=self.config.url)
             
+            # Build collection name with prefix for project isolation
+            self.collection_name = self._get_collection_name()
+            
             # Check if collection exists, create if not
             collections = self.client.get_collections()
             collection_names = [col.name for col in collections.collections]
             
-            if self.config.collection_name not in collection_names:
+            if self.collection_name not in collection_names:
                 await self._create_collection()
-                logger.info(f"Created collection: {self.config.collection_name}")
+                logger.info(f"Created collection: {self.collection_name}")
             else:
-                logger.info(f"Using existing collection: {self.config.collection_name}")
+                logger.info(f"Using existing collection: {self.collection_name}")
             
         except Exception as e:
             logger.error(f"Error initializing Qdrant service: {e}")
             raise
     
+    def _get_collection_name(self) -> str:
+        """Get collection name with prefix for project isolation."""
+        if self.config.collection_prefix:
+            return f"{self.config.collection_prefix}_{self.config.collection_name}"
+        return self.config.collection_name
+    
     async def _create_collection(self):
         """Create the documents collection."""
         try:
             self.client.create_collection(
-                collection_name=self.config.collection_name,
+                collection_name=self.collection_name,
                 vectors_config=VectorParams(
                     size=self.config.vector_size,
                     distance=Distance.COSINE
@@ -89,7 +98,7 @@ class QdrantService:
             
             # Insert points
             self.client.upsert(
-                collection_name=self.config.collection_name,
+                collection_name=self.collection_name,
                 points=points
             )
             
@@ -138,7 +147,7 @@ class QdrantService:
             
             # Perform search using query_points (new API)
             results = self.client.query_points(
-                collection_name=self.config.collection_name,
+                collection_name=self.collection_name,
                 query=query_embedding,
                 limit=limit,
                 with_payload=True,
@@ -191,7 +200,7 @@ class QdrantService:
         
         try:
             self.client.delete(
-                collection_name=self.config.collection_name,
+                collection_name=self.collection_name,
                 points_selector=[document_id]
             )
             
@@ -203,18 +212,18 @@ class QdrantService:
             return False
     
     async def get_document(self, document_id: str) -> Optional[Dict[str, Any]]:
-        """Get a document by ID."""
+        """Get a specific document by ID."""
         if not self.client:
             raise RuntimeError("Qdrant client not initialized")
         
         try:
             results = self.client.retrieve(
-                collection_name=self.config.collection_name,
+                collection_name=self.collection_name,
                 ids=[document_id],
                 with_payload=True
             )
             
-            if results:
+            if results and len(results) > 0:
                 result = results[0]
                 return {
                     "id": result.id,
@@ -224,14 +233,108 @@ class QdrantService:
                     "created_at": result.payload.get("created_at"),
                     "user_id": result.payload.get("user_id")
                 }
+            else:
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error getting document from Qdrant: {e}")
+            raise
+    
+    async def list_documents(self, user_id: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
+        """List documents in the collection with optional user filtering."""
+        if not self.client:
+            raise RuntimeError("Qdrant client not initialized")
+        
+        try:
+            # Build filter if user_id is specified
+            query_filter = None
+            if user_id:
+                query_filter = Filter(
+                    must=[
+                        FieldCondition(
+                            key="user_id",
+                            match=MatchValue(value=user_id)
+                        )
+                    ]
+                )
             
-            return None
+            # Get all points from collection
+            results = self.client.scroll(
+                collection_name=self.collection_name,
+                scroll_filter=query_filter,
+                limit=limit,
+                with_payload=True
+            )
+            
+            # Format results
+            documents = []
+            for result in results[0]:  # scroll returns (points, next_page_offset)
+                documents.append({
+                    "id": result.id,
+                    "content": result.payload.get("content", ""),
+                    "metadata": result.payload.get("metadata", {}),
+                    "document_id": result.payload.get("document_id"),
+                    "created_at": result.payload.get("created_at"),
+                    "user_id": result.payload.get("user_id")
+                })
+            
+            logger.info(f"Listed {len(documents)} documents from Qdrant")
+            return documents
             
         except Exception as e:
-            logger.error(f"Error getting document {document_id}: {e}")
-            return None
+            logger.error(f"Error listing documents from Qdrant: {e}")
+            raise
+    
+    async def get_document_stats(self, user_id: Optional[str] = None) -> Dict[str, Any]:
+        """Get statistics about documents in the collection."""
+        if not self.client:
+            raise RuntimeError("Qdrant client not initialized")
+        
+        try:
+            # Get collection info
+            collection_info = self.client.get_collection(self.collection_name)
+            
+            # Get document count
+            total_documents = collection_info.points_count
+            
+            # Get user-specific count if user_id is specified
+            user_documents = None
+            if user_id:
+                user_filter = Filter(
+                    must=[
+                        FieldCondition(
+                            key="user_id",
+                            match=MatchValue(value=user_id)
+                        )
+                    ]
+                )
+                
+                # Count documents for specific user
+                user_results = self.client.scroll(
+                    collection_name=self.collection_name,
+                    scroll_filter=user_filter,
+                    limit=0  # We only need count
+                )
+                user_documents = len(user_results[0])
+            
+            stats = {
+                "collection_name": self.collection_name,
+                "total_documents": total_documents,
+                "vector_size": self.config.vector_size,
+                "distance_metric": self.config.distance_metric
+            }
+            
+            if user_documents is not None:
+                stats["user_documents"] = user_documents
+            
+            logger.info(f"Retrieved document stats: {stats}")
+            return stats
+            
+        except Exception as e:
+            logger.error(f"Error getting document stats from Qdrant: {e}")
+            raise
     
     async def cleanup(self):
         """Cleanup resources."""
-        # No specific cleanup needed for Qdrant client
-        pass
+        if self.client:
+            self.client.close()

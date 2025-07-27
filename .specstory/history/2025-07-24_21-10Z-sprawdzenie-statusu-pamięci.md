@@ -15,7 +15,64 @@ I'll check the memory status for you. Let me use the memory system to see the cu
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-basic-memory - sync_status: Check the status of file synchronization and background operations.
+    
+    Use this tool to:
+    - Check if file sync is in progress or completed
+    - Get detailed sync progress information  
+    - Understand if your files are fully indexed
+    - Get specific error details if sync operations failed
+    - Monitor initial project setup and legacy migration
+    
+    This covers all sync operations including:
+    - Initial project setup and file indexing
+    - Legacy project migration to unified database
+    - Ongoing file monitoring and updates
+    - Background processing of knowledge graphs
+    
 
+*Parameters*:
+  * project: null
+
+*Result*:
+# Basic Memory Sync Status
+
+**Current Status**: ✅ All projects synced successfully
+**System Ready**: ✅ Yes
+
+✅ **All sync operations completed**
+
+- File indexing is complete
+- Knowledge graphs are up to date
+- All Basic Memory tools are fully operational
+
+Your knowledge base is ready for use!
+
+---
+
+**All Projects Status:**
+- 👁️ **main**: Watching for changes
+- 👁️ **money-app-docs**: Watching for changes
+- 👁️ **finance-manager**: Watching for changes
+- 👁️ **remind-tools-trips**: Watching for changes
+- 👁️ **remind-tools-money**: Watching for changes
+- 👁️ **remind-tools**: Watching for changes
+- ⏳ **remind**: Pending sync
+
+---
+
+**All Projects Status:**
+- 👁️ **main**: Watching for changes
+- 👁️ **money-app-docs**: Watching for changes
+- 👁️ **finance-manager**: Watching for changes
+- 👁️ **remind-tools-trips**: Watching for changes
+- 👁️ **remind-tools-money**: Watching for changes
+- 👁️ **remind-tools**: Watching for changes
+- ⏳ **remind**: Pending sync
+</details>
 
 ---
 
@@ -48,7 +105,25 @@ I'll check the RAG memory status for you.
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: rag - health_check: Check the health status of the RAG server.
 
+*Parameters*:
+  * random_string: check
+
+*Result*:
+{
+  "status": "healthy",
+  "services": {
+    "gemini": false,
+    "qdrant": false,
+    "mem0": false,
+    "rag": false
+  }
+}
+</details>
 
 ---
 
@@ -190,11 +265,83 @@ Cannot edit files blocked by globalIgnore
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - write_file: Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
 
+*Parameters*:
+  * path: .env.example
+  * content: # Gemini API Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+GEMINI_MAX_TOKENS=4096
+GEMINI_TEMPERATURE=0.7
+
+# Qdrant Configuration
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=your_qdrant_api_key_here
+COLLECTION_NAME=documents
+VECTOR_SIZE=768
+
+# Mem0 Configuration
+MEM0_API_KEY=your_mem0_api_key_here
+MEM0_SELF_HOSTED=true
+MEM0_LOCAL_STORAGE_PATH=./mem0_data
+MEM0_MEMORY_SIZE=1000
+MEM0_RELEVANCE_THRESHOLD=0.7
+MEM0_MAX_TOKENS_PER_MEMORY=1000
+
+# Server Configuration
+MCP_SERVER_HOST=localhost
+MCP_SERVER_PORT=8000
+LOG_LEVEL=INFO
+DEBUG=false
+
+*Result*:
+Error: Access denied - path outside allowed directories: /Users/rafalwolak/.env.example not in /Users/rafalwolak/dev
+</details>
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - write_file: Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env.example
+  * content: # Gemini API Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+GEMINI_MAX_TOKENS=4096
+GEMINI_TEMPERATURE=0.7
+
+# Qdrant Configuration
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=your_qdrant_api_key_here
+COLLECTION_NAME=documents
+VECTOR_SIZE=768
+
+# Mem0 Configuration
+MEM0_API_KEY=your_mem0_api_key_here
+MEM0_SELF_HOSTED=true
+MEM0_LOCAL_STORAGE_PATH=./mem0_data
+MEM0_MEMORY_SIZE=1000
+MEM0_RELEVANCE_THRESHOLD=0.7
+MEM0_MAX_TOKENS_PER_MEMORY=1000
+
+# Server Configuration
+MCP_SERVER_HOST=localhost
+MCP_SERVER_PORT=8000
+LOG_LEVEL=INFO
+DEBUG=false
+
+*Result*:
+Successfully wrote to /Users/rafalwolak/dev/mcp/rag/.env.example
+</details>
 
 ---
 
@@ -1803,19 +1950,112 @@ Cannot edit files blocked by globalIgnore
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - edit_file: Make line-based edits to a text file. Each edit replaces exact line sequences with new content. Returns a git-style diff showing the changes made. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env.example
+  * edits: [object Object]
+
+*Result*:
+Error: Could not find exact match for edit:
+# Mem0 ConfigurationnMEM0_API_KEY=your_mem0_api_key_herenMEM0_SELF_HOSTED=truenMEM0_LOCAL_STORAGE_PATH=./mem0_datanMEM0_MEMORY_SIZE=1000nMEM0_RELEVANCE_THRESHOLD=0.7nMEM0_MAX_TOKENS_PER_MEMORY=1000
+</details>
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - read_file: Read the complete contents of a file from the file system. Handles various text encodings and provides detailed error messages if the file cannot be read. Use this tool when you need to examine the contents of a single file. Use the 'head' parameter to read only the first N lines of a file, or the 'tail' parameter to read only the last N lines of a file. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env.example
+
+*Result*:
+# Gemini API Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+GEMINI_MAX_TOKENS=4096
+GEMINI_TEMPERATURE=0.7
+
+# Qdrant Configuration
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=your_qdrant_api_key_here
+COLLECTION_NAME=documents
+VECTOR_SIZE=768
+
+# Mem0 Configuration
+MEM0_API_KEY=your_mem0_api_key_here
+MEM0_SELF_HOSTED=true
+MEM0_LOCAL_STORAGE_PATH=./mem0_data
+MEM0_MEMORY_SIZE=1000
+MEM0_RELEVANCE_THRESHOLD=0.7
+MEM0_MAX_TOKENS_PER_MEMORY=1000
+
+# Server Configuration
+MCP_SERVER_HOST=localhost
+MCP_SERVER_PORT=8000
+LOG_LEVEL=INFO
+DEBUG=false
+</details>
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - edit_file: Make line-based edits to a text file. Each edit replaces exact line sequences with new content. Returns a git-style diff showing the changes made. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env.example
+  * edits: [object Object]
+
+*Result*:
+Error: Could not find exact match for edit:
+# Mem0 ConfigurationnMEM0_API_KEY=your_mem0_api_key_herenMEM0_SELF_HOSTED=truenMEM0_LOCAL_STORAGE_PATH=./mem0_datanMEM0_MEMORY_SIZE=1000nMEM0_RELEVANCE_THRESHOLD=0.7nMEM0_MAX_TOKENS_PER_MEMORY=1000
+</details>
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - write_file: Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env.example
+  * content: # Gemini API Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+GEMINI_MAX_TOKENS=4096
+GEMINI_TEMPERATURE=0.7
+
+# Qdrant Configuration
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=your_qdrant_api_key_here
+COLLECTION_NAME=documents
+VECTOR_SIZE=768
+
+# Mem0 Configuration (Open Source - no API key needed)
+MEM0_LOCAL_STORAGE_PATH=./mem0_data
+MEM0_MEMORY_SIZE=1000
+MEM0_RELEVANCE_THRESHOLD=0.7
+MEM0_MAX_TOKENS_PER_MEMORY=1000
+
+# Server Configuration
+MCP_SERVER_HOST=localhost
+MCP_SERVER_PORT=8000
+LOG_LEVEL=INFO
+DEBUG=false
+
+*Result*:
+Successfully wrote to /Users/rafalwolak/dev/mcp/rag/.env.example
+</details>
 
 ---
 
@@ -1824,7 +2064,41 @@ Teraz zaktualizujmy plik `.env`:
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - write_file: Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env
+  * content: # Gemini API Configuration
+GEMINI_API_KEY=AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g
+GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+GEMINI_MAX_TOKENS=4096
+GEMINI_TEMPERATURE=0.7
+
+# Qdrant Configuration
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=
+COLLECTION_NAME=documents
+VECTOR_SIZE=768
+
+# Mem0 Configuration (Open Source - no API key needed)
+MEM0_LOCAL_STORAGE_PATH=./mem0_data
+MEM0_MEMORY_SIZE=1000
+MEM0_RELEVANCE_THRESHOLD=0.7
+MEM0_MAX_TOKENS_PER_MEMORY=1000
+
+# Server Configuration
+MCP_SERVER_HOST=localhost
+MCP_SERVER_PORT=8000
+LOG_LEVEL=INFO
+DEBUG=false
+
+*Result*:
+Successfully wrote to /Users/rafalwolak/dev/mcp/rag/.env
+</details>
 
 ---
 
@@ -2705,7 +2979,40 @@ Teraz zaktualizujmy plik `.env.example`:
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - write_file: Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env.example
+  * content: # Gemini API Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+GEMINI_MAX_TOKENS=4096
+GEMINI_TEMPERATURE=0.7
+
+# Qdrant Configuration (Local Docker - no API key needed)
+QDRANT_URL=http://localhost:6333
+COLLECTION_NAME=documents
+VECTOR_SIZE=768
+
+# Mem0 Configuration (Open Source - no API key needed)
+MEM0_LOCAL_STORAGE_PATH=./mem0_data
+MEM0_MEMORY_SIZE=1000
+MEM0_RELEVANCE_THRESHOLD=0.7
+MEM0_MAX_TOKENS_PER_MEMORY=1000
+
+# Server Configuration
+MCP_SERVER_HOST=localhost
+MCP_SERVER_PORT=8000
+LOG_LEVEL=INFO
+DEBUG=false
+
+*Result*:
+Successfully wrote to /Users/rafalwolak/dev/mcp/rag/.env.example
+</details>
 
 ---
 
@@ -2714,7 +3021,40 @@ Zaktualizujmy też plik `.env`:
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - write_file: Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/.env
+  * content: # Gemini API Configuration
+GEMINI_API_KEY=AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g
+GEMINI_MODEL=gemini-2.0-flash-exp
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+GEMINI_MAX_TOKENS=4096
+GEMINI_TEMPERATURE=0.7
+
+# Qdrant Configuration (Local Docker - no API key needed)
+QDRANT_URL=http://localhost:6333
+COLLECTION_NAME=documents
+VECTOR_SIZE=768
+
+# Mem0 Configuration (Open Source - no API key needed)
+MEM0_LOCAL_STORAGE_PATH=./mem0_data
+MEM0_MEMORY_SIZE=1000
+MEM0_RELEVANCE_THRESHOLD=0.7
+MEM0_MAX_TOKENS_PER_MEMORY=1000
+
+# Server Configuration
+MCP_SERVER_HOST=localhost
+MCP_SERVER_PORT=8000
+LOG_LEVEL=INFO
+DEBUG=false
+
+*Result*:
+Successfully wrote to /Users/rafalwolak/dev/mcp/rag/.env
+</details>
 
 ---
 
@@ -3953,7 +4293,241 @@ Problem polega na tym, że inicjalizujemy usługi przed uruchomieniem serwera, a
 
 ---
 
+<details>
+          <summary>MCP tool call</summary>
+      
+*Called tool*: c-filesystem - write_file: Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
 
+*Parameters*:
+  * path: /Users/rafalwolak/dev/mcp/rag/simple_server.py
+  * content: #!/usr/bin/env python3
+"""
+Simple HTTP server for testing RAG functionality.
+"""
+
+import asyncio
+import json
+import logging
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
+
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+# Add the src directory to the path
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from mcp_rag_server.config import config
+from mcp_rag_server.services.gemini_service import GeminiService
+from mcp_rag_server.services.qdrant_service import QdrantService
+from mcp_rag_server.services.mem0_service import Mem0Service
+from mcp_rag_server.services.rag_service import RAGService
+
+# Configure logging
+logging.basicConfig(
+    level=getattr(logging, config.server.log_level.upper()),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
+class RAGServer:
+    """Simple RAG server for testing."""
+    
+    def __init__(self):
+        """Initialize the RAG server."""
+        self.gemini_service: GeminiService | None = None
+        self.qdrant_service: QdrantService | None = None
+        self.mem0_service: Mem0Service | None = None
+        self.rag_service: RAGService | None = None
+    
+    async def initialize_services(self):
+        """Initialize all services."""
+        logger.info("Initializing RAG Server services...")
+        
+        try:
+            # Initialize Gemini service
+            self.gemini_service = GeminiService(config.gemini)
+            await self.gemini_service.initialize()
+            logger.info("Gemini service initialized")
+            
+            # Initialize Qdrant service
+            self.qdrant_service = QdrantService(config.qdrant)
+            await self.qdrant_service.initialize()
+            logger.info("Qdrant service initialized")
+            
+            # Initialize Mem0 service
+            self.mem0_service = Mem0Service(config.mem0)
+            await self.mem0_service.initialize()
+            logger.info("Mem0 service initialized")
+            
+            # Initialize RAG service
+            self.rag_service = RAGService(
+                gemini_service=self.gemini_service,
+                qdrant_service=self.qdrant_service,
+                mem0_service=self.mem0_service
+            )
+            await self.rag_service.initialize()
+            logger.info("RAG service initialized")
+            
+        except Exception as e:
+            logger.error(f"Error initializing services: {e}")
+            raise
+    
+    async def cleanup_services(self):
+        """Cleanup all services."""
+        logger.info("Cleaning up RAG Server services...")
+        
+        if self.rag_service:
+            await self.rag_service.cleanup()
+        if self.mem0_service:
+            await self.mem0_service.cleanup()
+        if self.qdrant_service:
+            await self.qdrant_service.cleanup()
+        if self.gemini_service:
+            await self.gemini_service.cleanup()
+
+
+# Global server instance
+rag_server = RAGServer()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Manage application lifespan."""
+    await rag_server.initialize_services()
+    try:
+        yield
+    finally:
+        await rag_server.cleanup_services()
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="RAG Server",
+    description="Simple RAG server for testing",
+    version="0.1.0",
+    lifespan=lifespan
+)
+
+
+# Pydantic models
+class HealthResponse(BaseModel):
+    status: str
+    services: dict[str, bool]
+
+
+class AddDocumentRequest(BaseModel):
+    content: str
+    metadata: dict = {}
+
+
+class SearchRequest(BaseModel):
+    query: str
+    limit: int = 5
+
+
+class AskQuestionRequest(BaseModel):
+    question: str
+    user_id: str = "default"
+
+
+class Response(BaseModel):
+    success: bool
+    data: dict = {}
+    error: str = ""
+
+
+# API endpoints
+@app.get("/health", response_model=HealthResponse)
+async def health_check():
+    """Check the health status of the RAG server."""
+    return {
+        "status": "healthy",
+        "services": {
+            "gemini": rag_server.gemini_service is not None,
+            "qdrant": rag_server.qdrant_service is not None,
+            "mem0": rag_server.mem0_service is not None,
+            "rag": rag_server.rag_service is not None
+        }
+    }
+
+
+@app.post("/add_document", response_model=Response)
+async def add_document(request: AddDocumentRequest):
+    """Add a document to the RAG system."""
+    if not rag_server.rag_service:
+        raise HTTPException(status_code=500, detail="RAG service not initialized")
+    
+    try:
+        result = await rag_server.rag_service.add_document(request.content, request.metadata)
+        return Response(success=True, data={"document_id": result["id"]})
+    except Exception as e:
+        logger.error(f"Error adding document: {e}")
+        return Response(success=False, error=str(e))
+
+
+@app.post("/search", response_model=Response)
+async def search_documents(request: SearchRequest):
+    """Search for documents using semantic search."""
+    if not rag_server.rag_service:
+        raise HTTPException(status_code=500, detail="RAG service not initialized")
+    
+    try:
+        results = await rag_server.rag_service.search_documents(request.query, request.limit)
+        return Response(success=True, data={"results": results})
+    except Exception as e:
+        logger.error(f"Error searching documents: {e}")
+        return Response(success=False, error=str(e))
+
+
+@app.post("/ask", response_model=Response)
+async def ask_question(request: AskQuestionRequest):
+    """Ask a question using RAG."""
+    if not rag_server.rag_service:
+        raise HTTPException(status_code=500, detail="RAG service not initialized")
+    
+    try:
+        response = await rag_server.rag_service.ask_question(request.question, request.user_id)
+        return Response(success=True, data={"answer": response})
+    except Exception as e:
+        logger.error(f"Error asking question: {e}")
+        return Response(success=False, error=str(e))
+
+
+@app.get("/")
+async def root():
+    """Root endpoint."""
+    return {
+        "message": "RAG Server is running",
+        "endpoints": {
+            "health": "/health",
+            "add_document": "/add_document",
+            "search": "/search",
+            "ask": "/ask"
+        }
+    }
+
+
+def main():
+    """Main entry point."""
+    uvicorn.run(
+        app,
+        host=config.server.host,
+        port=8001,
+        log_level=config.server.log_level.lower()
+    )
+
+
+if __name__ == "__main__":
+    main()
+
+*Result*:
+Successfully wrote to /Users/rafalwolak/dev/mcp/rag/simple_server.py
+</details>
 
 ---
 

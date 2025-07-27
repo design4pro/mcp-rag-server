@@ -28,6 +28,7 @@ class QdrantConfig(BaseSettings):
     
     url: str = Field(default="http://localhost:6333", env="QDRANT_URL")
     collection_name: str = Field(default="documents", env="COLLECTION_NAME")
+    collection_prefix: str = Field(default="", env="COLLECTION_PREFIX", description="Prefix for collection names to support multi-project isolation")
     vector_size: int = Field(default=768, env="VECTOR_SIZE")
     distance_metric: str = Field(default="Cosine", description="Distance metric for vectors")
     
@@ -40,6 +41,10 @@ class Mem0Config(BaseSettings):
     
     # Local storage path (fallback when mem0 package is not available)
     local_storage_path: str = Field(default="./data/mem0_data", env="MEM0_LOCAL_STORAGE_PATH")
+    
+    # Project isolation settings
+    project_namespace: str = Field(default="", env="PROJECT_NAMESPACE", description="Namespace for project isolation in memory storage")
+    default_user_id: str = Field(default="default", env="DEFAULT_USER_ID", description="Default user ID for the project")
     
     # Memory settings
     memory_size: int = Field(default=1000, description="Maximum memory entries per user")
