@@ -6,6 +6,44 @@
       "env": {
         "GEMINI_API_KEY": "AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g"
       }
+    },
+    "rag-web-dev": {
+      "url": "http://localhost:8001/mcp",
+      "type": "stdio",
+      "env": {
+        "GEMINI_API_KEY": "AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g",
+        "QDRANT_COLLECTION_PREFIX": "web_dev",
+        "MEM0_PROJECT_NAMESPACE": "web_development",
+        "MEM0_DEFAULT_USER_ID": "web_dev_team",
+        "FASTMCP_PORT": "8001",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "rag-mobile": {
+      "url": "http://localhost:8002/mcp",
+      "type": "stdio",
+      "env": {
+        "GEMINI_API_KEY": "AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g",
+        "QDRANT_COLLECTION_PREFIX": "mobile_app",
+        "MEM0_PROJECT_NAMESPACE": "mobile_development",
+        "MEM0_DEFAULT_USER_ID": "mobile_dev_team",
+        "FASTMCP_PORT": "8002",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "rag-acme": {
+      "url": "http://localhost:8003/mcp",
+      "type": "stdio",
+      "env": {
+        "GEMINI_API_KEY": "AIzaSyBydSC6F2F2IEP_PWXsNljkKOqtOfrwj7g",
+        "QDRANT_COLLECTION_PREFIX": "client_acme",
+        "MEM0_PROJECT_NAMESPACE": "acme_corp",
+        "MEM0_DEFAULT_USER_ID": "acme_team",
+        "FASTMCP_PORT": "8003",
+        "LOG_LEVEL": "DEBUG",
+        "MCP_SESSION_TIMEOUT_HOURS": "12",
+        "MCP_MAX_SESSIONS_PER_USER": "5"
+      }
     }
   }
 }

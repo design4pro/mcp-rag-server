@@ -122,6 +122,7 @@ docs/
   02-installation/
     installation-guide.md
     project-isolation-configuration.md
+    environment-variables-configuration-guide.md
   03-api/
     api-reference.md
   04-development/
@@ -928,5 +929,4 @@ QDRANT_COLLECTION_PREFIX=tech_x
 # For Project A
 MEM0_PROJECT_NAMESPACE=project_a
 
-# For Client B
-MEM0_PROJECT_NAMESPACE=client_
+# For Client
