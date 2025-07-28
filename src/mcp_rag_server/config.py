@@ -59,8 +59,10 @@ class Mem0Config(BaseSettings):
     max_memory_context_length: int = Field(default=2000, description="Maximum memory context length in tokens")
     enable_memory_summarization: bool = Field(default=True, description="Enable memory summarization for long contexts")
     
-    class Config:
-        env_prefix = "MCP_MEM0_"
+    model_config = {
+        "env_prefix": "MCP_MEM0_",
+        "extra": "ignore"
+    }
 
 
 class SessionConfig(BaseSettings):
@@ -184,7 +186,15 @@ class Config(BaseSettings):
 def get_config() -> Config:
     """Get configuration with proper error handling."""
     try:
-        return Config()
+        config = Config()
+        
+        # Handle backward compatibility for MCP_USER_ID
+        # If MCP_USER_ID is set, override mem0.default_user_id
+        import os
+        if "MCP_USER_ID" in os.environ:
+            config.mem0.default_user_id = os.environ["MCP_USER_ID"]
+        
+        return config
     except Exception as e:
         import os
         import sys

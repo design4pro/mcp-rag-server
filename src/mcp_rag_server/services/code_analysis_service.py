@@ -103,9 +103,37 @@ class CodeAnalysisService:
     async def analyze_source_code(self, file_path: str, language: str = "auto") -> Dict[str, Any]:
         """Analyze source code file and extract comprehensive information."""
         try:
-            path = Path(file_path)
-            if not path.exists():
-                raise FileNotFoundError(f"File not found: {file_path}")
+            # Try different path resolutions
+            path = None
+            possible_paths = [
+                Path(file_path),  # Direct path
+                Path.cwd() / file_path,  # Relative to current working directory
+                Path("/workspace") / file_path,  # Common Docker workspace
+                Path("/app") / file_path,  # Common Docker app directory
+                Path("/code") / file_path,  # Common code directory
+            ]
+            
+            # Also try with common project root patterns
+            if "/" in file_path:
+                parts = file_path.split("/")
+                if len(parts) > 1:
+                    # Try with different root directories
+                    for root in ["/workspace", "/app", "/code", "/src", Path.cwd()]:
+                        possible_paths.append(Path(root) / file_path)
+                        # Try without first directory (e.g., "apps/remind-tools/src/app/app.ts" -> "remind-tools/src/app/app.ts")
+                        if len(parts) > 2:
+                            possible_paths.append(Path(root) / "/".join(parts[1:]))
+            
+            # Find the first existing path
+            for test_path in possible_paths:
+                if test_path.exists():
+                    path = test_path
+                    break
+            
+            if path is None:
+                # If no path found, try to provide helpful error message
+                searched_paths = [str(p) for p in possible_paths[:10]]  # Limit to first 10 for readability
+                raise FileNotFoundError(f"File not found: {file_path}. Searched in: {', '.join(searched_paths)}")
             
             with open(path, 'r', encoding='utf-8') as f:
                 code = f.read()
