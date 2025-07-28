@@ -13,38 +13,38 @@ from pydantic_settings import BaseSettings
 class GeminiConfig(BaseSettings):
     """Configuration for Gemini API integration."""
     
-    api_key: str = Field(..., env="MCP_GEMINI_API_KEY", description="Gemini API key")
+    api_key: str = Field(..., description="Gemini API key")
     model: str = Field(default="gemini-2.0-flash-exp", description="Gemini model to use")
     embedding_model: str = Field(default="text-embedding-004", description="Embedding model")
     max_tokens: int = Field(default=4096, description="Maximum tokens for generation")
     temperature: float = Field(default=0.7, description="Temperature for generation")
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_GEMINI_"
 
 
 class QdrantConfig(BaseSettings):
     """Configuration for Qdrant vector database."""
     
-    url: str = Field(default="http://localhost:6333", env="MCP_QDRANT_URL")
-    collection_name: str = Field(default="documents", env="MCP_COLLECTION_NAME")
-    collection_prefix: str = Field(default="", env="MCP_COLLECTION", description="Prefix for collection names to support multi-project isolation")
-    vector_size: int = Field(default=768, env="MCP_VECTOR_SIZE")
+    url: str = Field(default="http://localhost:6333")
+    collection_name: str = Field(default="documents")
+    collection_prefix: str = Field(default="", description="Prefix for collection names to support multi-project isolation")
+    vector_size: int = Field(default=768)
     distance_metric: str = Field(default="Cosine", description="Distance metric for vectors")
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_QDRANT_"
 
 
 class Mem0Config(BaseSettings):
     """Configuration for Mem0 memory layer."""
     
     # Local storage path (fallback when mem0 package is not available)
-    local_storage_path: str = Field(default="./data/mem0_data", env="MCP_MEM0_STORAGE_PATH")
+    local_storage_path: str = Field(default="./data/mem0_data")
     
     # Project isolation settings
-    project_namespace: str = Field(default="", env="MCP_PROJECT_NAMESPACE", description="Namespace for project isolation in memory storage")
-    default_user_id: str = Field(default="default", env="MCP_USER_ID", description="Default user ID for the project")
+    project_namespace: str = Field(default="", description="Namespace for project isolation in memory storage")
+    default_user_id: str = Field(default="default", description="Default user ID for the project")
     
     # Memory settings
     memory_size: int = Field(default=1000, description="Maximum memory entries per user")
@@ -60,26 +60,26 @@ class Mem0Config(BaseSettings):
     enable_memory_summarization: bool = Field(default=True, description="Enable memory summarization for long contexts")
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_MEM0_"
 
 
 class SessionConfig(BaseSettings):
     """Configuration for session management."""
     
-    timeout_hours: int = Field(default=24, env="MCP_SESSION_TIMEOUT_HOURS", description="Session timeout in hours")
-    max_sessions_per_user: int = Field(default=10, env="MCP_MAX_SESSIONS_PER_USER", description="Maximum sessions per user")
+    timeout_hours: int = Field(default=24, description="Session timeout in hours")
+    max_sessions_per_user: int = Field(default=10, description="Maximum sessions per user")
     cleanup_interval_minutes: int = Field(default=5, description="Session cleanup interval in minutes")
     enable_tracking: bool = Field(default=True, description="Enable session tracking")
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_SESSION_"
 
 
 class PromptsConfig(BaseSettings):
     """Configuration for MCP Prompts functionality."""
     
     # Enable/disable prompts functionality
-    enabled: bool = Field(default=True, env="MCP_PROMPTS_ENABLED", description="Enable MCP prompts functionality")
+    enabled: bool = Field(default=True, description="Enable MCP prompts functionality")
     
     # Prompt management settings
     max_prompts_per_user: int = Field(default=50, description="Maximum custom prompts per user")
@@ -105,61 +105,61 @@ class PromptsConfig(BaseSettings):
     ], description="Default prompt templates to include")
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_PROMPTS_"
 
 
 class HTTPIntegrationConfig(BaseSettings):
     """Configuration for HTTP integration features."""
     
     # HTTP client settings
-    timeout_seconds: int = Field(default=30, env="MCP_HTTP_TIMEOUT", description="HTTP request timeout in seconds")
-    max_retries: int = Field(default=3, env="MCP_HTTP_MAX_RETRIES", description="Maximum HTTP retries")
-    max_concurrent_requests: int = Field(default=10, env="MCP_HTTP_MAX_CONCURRENT", description="Maximum concurrent HTTP requests")
+    timeout_seconds: int = Field(default=30, description="HTTP request timeout in seconds")
+    max_retries: int = Field(default=3, description="Maximum HTTP retries")
+    max_concurrent_requests: int = Field(default=10, description="Maximum concurrent HTTP requests")
     
     # Content processing settings
-    auto_add_to_rag: bool = Field(default=True, env="MCP_HTTP_AUTO_ADD_TO_RAG", description="Automatically add fetched content to RAG")
-    extract_metadata: bool = Field(default=True, env="MCP_HTTP_EXTRACT_METADATA", description="Extract metadata from HTTP responses")
-    max_content_size: int = Field(default=10485760, env="MCP_HTTP_MAX_CONTENT_SIZE", description="Maximum content size in bytes (10MB)")
+    auto_add_to_rag: bool = Field(default=True, description="Automatically add fetched content to RAG")
+    extract_metadata: bool = Field(default=True, description="Extract metadata from HTTP responses")
+    max_content_size: int = Field(default=10485760, description="Maximum content size in bytes (10MB)")
     
     # User agent and headers
-    user_agent: str = Field(default="MCP-RAG-Server/1.0", env="MCP_HTTP_USER_AGENT", description="HTTP User-Agent string")
+    user_agent: str = Field(default="MCP-RAG-Server/1.0", description="HTTP User-Agent string")
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_HTTP_"
 
 
 class AdvancedFeaturesConfig(BaseSettings):
     """Configuration for advanced features."""
     
     # Batch processing settings
-    default_batch_size: int = Field(default=10, env="MCP_BATCH_SIZE", description="Default batch size for processing")
-    max_batch_size: int = Field(default=100, env="MCP_MAX_BATCH_SIZE", description="Maximum batch size")
-    parallel_processing: bool = Field(default=True, env="MCP_PARALLEL_PROCESSING", description="Enable parallel processing")
+    default_batch_size: int = Field(default=10, description="Default batch size for processing")
+    max_batch_size: int = Field(default=100, description="Maximum batch size")
+    parallel_processing: bool = Field(default=True, description="Enable parallel processing")
     
     # Streaming settings
-    enable_streaming: bool = Field(default=True, env="MCP_ENABLE_STREAMING", description="Enable real-time streaming")
-    stream_heartbeat_interval: int = Field(default=30, env="MCP_STREAM_HEARTBEAT", description="Stream heartbeat interval in seconds")
-    max_active_streams: int = Field(default=50, env="MCP_MAX_ACTIVE_STREAMS", description="Maximum active streams per user")
+    enable_streaming: bool = Field(default=True, description="Enable real-time streaming")
+    stream_heartbeat_interval: int = Field(default=30, description="Stream heartbeat interval in seconds")
+    max_active_streams: int = Field(default=50, description="Maximum active streams per user")
     
     # Webhook settings
-    enable_webhooks: bool = Field(default=True, env="MCP_ENABLE_WEBHOOKS", description="Enable webhook callbacks")
-    webhook_timeout: int = Field(default=10, env="MCP_WEBHOOK_TIMEOUT", description="Webhook timeout in seconds")
-    max_webhook_retries: int = Field(default=3, env="MCP_WEBHOOK_MAX_RETRIES", description="Maximum webhook retries")
+    enable_webhooks: bool = Field(default=True, description="Enable webhook callbacks")
+    webhook_timeout: int = Field(default=10, description="Webhook timeout in seconds")
+    max_webhook_retries: int = Field(default=3, description="Maximum webhook retries")
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_ADVANCED_"
 
 
 class ServerConfig(BaseSettings):
     """Configuration for MCP server."""
     
-    host: str = Field(default="localhost", env="MCP_SERVER_HOST")
-    port: int = Field(default=8000, env="MCP_SERVER_PORT")
-    log_level: str = Field(default="INFO", env="MCP_LOG_LEVEL")
-    debug: bool = Field(default=False, env="MCP_DEBUG")
+    host: str = Field(default="localhost")
+    port: int = Field(default=8000)
+    log_level: str = Field(default="INFO")
+    debug: bool = Field(default=False)
     
     class Config:
-        env_prefix = ""
+        env_prefix = "MCP_"
 
 
 class Config(BaseSettings):
