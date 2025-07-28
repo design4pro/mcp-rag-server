@@ -42,6 +42,7 @@ class MemoryRequest(BaseModel):
     memory_type: str = Field(default="conversation", description="Type of memory")
     metadata: Optional[Dict[str, Any]] = Field(default=None, description="Memory metadata")
     user_id: str = Field(default=config.mem0.default_user_id, min_length=1, max_length=100, description="User ID for memory ownership")
+    session_id: Optional[str] = Field(default=None, max_length=100, description="Session ID for memory association")
     
     class Config:
         extra = "ignore"

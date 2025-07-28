@@ -268,11 +268,17 @@ class MCPRAGServer:
                 if not self.memory_tools:
                     raise RuntimeError("Memory tools not initialized")
                 
+                # Note: session_id is stored in metadata but not passed to memory_tools.add_memory
+                # as it doesn't support session_id parameter directly
+                metadata = validated_input.metadata or {}
+                if validated_input.session_id:
+                    metadata["session_id"] = validated_input.session_id
+                
                 result = await self.memory_tools.add_memory(
+                    validated_input.user_id,
                     validated_input.content,
                     validated_input.memory_type,
-                    validated_input.user_id,
-                    validated_input.session_id
+                    metadata
                 )
                 
                 return result

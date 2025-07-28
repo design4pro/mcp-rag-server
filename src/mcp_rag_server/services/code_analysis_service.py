@@ -98,6 +98,9 @@ class CodeAnalysisService:
         """Find the root directory of the current project."""
         if start_path:
             current = Path(start_path)
+            if not current.exists():
+                logger.warning(f"Start path does not exist: {start_path}")
+                current = Path.cwd()
         else:
             current = Path.cwd()
         
@@ -106,6 +109,8 @@ class CodeAnalysisService:
             project_root = Path(self.config.code_analysis.project_root)
             if project_root.exists():
                 return project_root
+            else:
+                logger.warning(f"Configured project root does not exist: {project_root}")
         
         # Auto-detect project root by looking for common project files
         while current != current.parent:
@@ -117,15 +122,24 @@ class CodeAnalysisService:
             
             for file in project_files:
                 if (current / file).exists():
+                    logger.info(f"Found project root: {current} (detected by {file})")
                     return current
             
             current = current.parent
         
         # If no project root found, try common directories
         for common_dir in self.config.code_analysis.common_project_dirs:
-            if Path(common_dir).exists():
-                return Path(common_dir)
+            common_path = Path(common_dir)
+            if common_path.exists():
+                logger.info(f"Using common project directory: {common_path}")
+                return common_path
         
+        # Fallback to current working directory if it exists
+        if Path.cwd().exists():
+            logger.info(f"Using current working directory as project root: {Path.cwd()}")
+            return Path.cwd()
+        
+        logger.warning("No project root found")
         return None
 
     def find_file_in_project(self, file_path: str, project_root: Path = None) -> Optional[Path]:
@@ -185,6 +199,10 @@ class CodeAnalysisService:
             if not project_root:
                 return {"error": "Project root not found"}
         
+        # Validate that project_root exists
+        if not project_root.exists():
+            return {"error": f"Project root does not exist: {project_root}"}
+        
         if max_depth is None:
             max_depth = self.config.code_analysis.max_search_depth
         
@@ -219,6 +237,10 @@ class CodeAnalysisService:
                         result["children"][item.name] = build_tree(item, depth + 1)
             except PermissionError:
                 result["error"] = "Permission denied"
+            except FileNotFoundError:
+                result["error"] = "Directory not found"
+            except Exception as e:
+                result["error"] = f"Error reading directory: {str(e)}"
             
             return result
         
