@@ -35,9 +35,6 @@ rag/
 ├── docker/                      # Docker configuration
 │   ├── docker-compose.yml       # Service orchestration
 │   └── Dockerfile               # Container definition
-├── deployment/                  # Deployment files
-│   ├── mcp-rag-server.service   # Systemd service
-│   └── start_services.sh        # Startup script
 ├── data/                        # Persistent data
 │   └── mem0_data/               # Memory storage
 ├── logs/                        # Log files

@@ -23,6 +23,7 @@ MANIFEST
 
 # Virtual environments
 .env
+.env.backup
 .venv
 env/
 venv/
@@ -92,6 +93,6 @@ dmypy.json
 .specstory/
 
 # Cursor IDE
-.cursor/
 .cursorindexingignore
 .cursorignore
+.cursor

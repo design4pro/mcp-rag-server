@@ -40,11 +40,6 @@ This document summarizes the refactoring changes made to improve the project str
 - `test_*.py` → `tests/integration/`
 - `test_rag_service.py` → `tests/unit/`
 
-**Deployment Files:**
-
-- `mcp-rag-server.service` → `deployment/mcp-rag-server.service`
-- `start_services.sh` → `deployment/start_services.sh`
-
 **Data & Logs:**
 
 - `mem0_data/` → `data/mem0_data/`
