@@ -3,7 +3,7 @@ title: environment-variables-configuration-guide
 type: note
 permalink: docs/02-installation/environment-variables-configuration-guide
 tags:
-- '[''environment-variables'''
+- environment-variables
 - configuration'
 - docker'
 - project-isolation

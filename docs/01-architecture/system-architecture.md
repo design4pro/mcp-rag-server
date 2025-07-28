@@ -3,10 +3,10 @@ title: system-architecture
 type: note
 permalink: docs/01-architecture/system-architecture
 tags:
-- '[''architecture'''
+- architecture
 - system-design
-- components'
-- '''obsidian-compatible'']'
+- components
+- obsidian-compatible
 ---
 
 # System Architecture

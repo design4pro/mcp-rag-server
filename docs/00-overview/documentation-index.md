@@ -3,10 +3,10 @@ title: documentation-index
 type: note
 permalink: docs/00-overview/documentation-index
 tags:
-- '[''documentation-index'''
-- '''overview'
+- documentation-index
+- overview
 - navigation'
-- '''obsidian-compatible'']'
+- obsidian-compatible
 ---
 
 # MCP RAG Server Documentation

@@ -3,10 +3,10 @@ title: api-reference
 type: note
 permalink: docs/03-api/api-reference
 tags:
-- '[]api-reference'''
-- '''mcp-tools'''
-- resources'
-- '''obsidian-compatible'']'
+- api-reference
+- mcp-tools
+- resources
+- obsidian-compatible
 ---
 
 # API Reference and Usage Guide

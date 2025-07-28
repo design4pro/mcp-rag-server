@@ -25,11 +25,7 @@ class TestSessionService:
             host="localhost",
             port=8000,
             log_level="INFO",
-            debug=False,
-            session_timeout_hours=24,
-            max_sessions_per_user=10,
-            session_cleanup_interval_minutes=5,
-            enable_session_tracking=True
+            debug=False
         )
     
     @pytest.fixture

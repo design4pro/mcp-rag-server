@@ -3,12 +3,12 @@ title: mcp-vs-fastmcp-configuration-guide
 type: note
 permalink: docs/02-installation/mcp-vs-fastmcp-configuration-guide
 tags:
-- '[''mcp'''
+- mcp
 - fastmcp
 - configuration
-- cursor-editor'
-- project-isolation'
-- environment-variables']
+- cursor-editor
+- project-isolation
+- environment-variables
 ---
 
 # MCP vs FastMCP Configuration Guide

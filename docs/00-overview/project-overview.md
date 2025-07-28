@@ -3,10 +3,10 @@ title: project-overview
 type: note
 permalink: docs/00-overview/project-overview
 tags:
-- '[''overview'''
-- '''project'
-- architecture'
-- '''obsidian-compatible'']'
+- overview
+- project
+- architecture
+- obsidian-compatible
 ---
 
 # MCP RAG Server - Project Overview

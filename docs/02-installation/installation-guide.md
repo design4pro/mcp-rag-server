@@ -3,10 +3,10 @@ title: installation-guide
 type: note
 permalink: docs/02-installation/installation-guide
 tags:
-  - "['installation'"
-  - "'setup'"
-  - configuration'
-  - "'obsidian-compatible']"
+  - installation
+  - setup
+  - configuration
+  - obsidian-compatible
 ---
 
 # Installation Guide

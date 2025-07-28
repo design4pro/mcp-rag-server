@@ -3,9 +3,9 @@ title: docker-registry-publishing-guide-updated
 type: note
 permalink: docs/02-installation/docker-registry-publishing-guide-updated
 tags:
-- '[]docker-registry'''
-- ghcr-publishing'
-- '''deployment'']'
+- docker-registry
+- ghcr-publishing
+- deployment
 ---
 
 # Docker Registry Publishing Guide

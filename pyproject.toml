@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "MCP RAG Team", email = "team@mcp-rag.dev"}
+    {name = "DESIGN4PRO", email = "mcp-rag-server@design4.pro"}
 ]
 keywords = ["mcp", "rag", "qdrant", "mem0", "gemini", "ai", "reasoning", "memory", "vector-search"]
 classifiers = [
@@ -29,10 +29,9 @@ classifiers = [
 ]
 
 dependencies = [
-    "mcp[cli]>=1.0.0",
-    "qdrant-client>=1.7.0",
-    "mem0ai>=0.1.0",
-    "google-genai>=0.3.0",
+            "fastmcp>=2.10.6",
+            "qdrant-client>=1.7.0",
+        "google-genai>=0.3.0",
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
     "python-dotenv>=1.0.0",
@@ -60,10 +59,10 @@ dev = [
 mcp-rag-server = "mcp_rag_server.server:main"
 
 [project.urls]
-Homepage = "https://github.com/your-org/mcp-rag-server"
-Documentation = "https://github.com/your-org/mcp-rag-server/docs"
-Repository = "https://github.com/your-org/mcp-rag-server.git"
-Issues = "https://github.com/your-org/mcp-rag-server/issues"
+Homepage = "https://github.com/design4pro/mcp-rag-server"
+Documentation = "https://github.com/design4pro/mcp-rag-server/docs"
+Repository = "https://github.com/design4pro/mcp-rag-server.git"
+Issues = "https://github.com/design4pro/mcp-rag-server/issues"
 
 [tool.black]
 line-length = 88

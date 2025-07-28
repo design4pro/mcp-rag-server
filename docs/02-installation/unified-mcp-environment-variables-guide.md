@@ -3,11 +3,11 @@ title: unified-mcp-environment-variables-guide
 type: note
 permalink: docs/02-installation/unified-mcp-environment-variables-guide
 tags:
-- '[]unified-variables'''
-- mcp-prefix'
+- unified-variables
+- mcp-prefix
 - environment-variables
 - configuration
-- migration-guide']
+- migration-guide
 ---
 
 # Unified MCP Environment Variables Guide

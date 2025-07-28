@@ -108,6 +108,48 @@ class PromptsConfig(BaseSettings):
         env_prefix = "MCP_PROMPTS_"
 
 
+class HTTPIntegrationConfig(BaseSettings):
+    """Configuration for HTTP integration features."""
+    
+    # HTTP client settings
+    timeout_seconds: int = Field(default=30, env="MCP_HTTP_TIMEOUT", description="HTTP request timeout in seconds")
+    max_retries: int = Field(default=3, env="MCP_HTTP_MAX_RETRIES", description="Maximum HTTP retries")
+    max_concurrent_requests: int = Field(default=10, env="MCP_HTTP_MAX_CONCURRENT", description="Maximum concurrent HTTP requests")
+    
+    # Content processing settings
+    auto_add_to_rag: bool = Field(default=True, env="MCP_HTTP_AUTO_ADD_TO_RAG", description="Automatically add fetched content to RAG")
+    extract_metadata: bool = Field(default=True, env="MCP_HTTP_EXTRACT_METADATA", description="Extract metadata from HTTP responses")
+    max_content_size: int = Field(default=10485760, env="MCP_HTTP_MAX_CONTENT_SIZE", description="Maximum content size in bytes (10MB)")
+    
+    # User agent and headers
+    user_agent: str = Field(default="MCP-RAG-Server/1.0", env="MCP_HTTP_USER_AGENT", description="HTTP User-Agent string")
+    
+    class Config:
+        env_prefix = "MCP_HTTP_"
+
+
+class AdvancedFeaturesConfig(BaseSettings):
+    """Configuration for advanced features."""
+    
+    # Batch processing settings
+    default_batch_size: int = Field(default=10, env="MCP_BATCH_SIZE", description="Default batch size for processing")
+    max_batch_size: int = Field(default=100, env="MCP_MAX_BATCH_SIZE", description="Maximum batch size")
+    parallel_processing: bool = Field(default=True, env="MCP_PARALLEL_PROCESSING", description="Enable parallel processing")
+    
+    # Streaming settings
+    enable_streaming: bool = Field(default=True, env="MCP_ENABLE_STREAMING", description="Enable real-time streaming")
+    stream_heartbeat_interval: int = Field(default=30, env="MCP_STREAM_HEARTBEAT", description="Stream heartbeat interval in seconds")
+    max_active_streams: int = Field(default=50, env="MCP_MAX_ACTIVE_STREAMS", description="Maximum active streams per user")
+    
+    # Webhook settings
+    enable_webhooks: bool = Field(default=True, env="MCP_ENABLE_WEBHOOKS", description="Enable webhook callbacks")
+    webhook_timeout: int = Field(default=10, env="MCP_WEBHOOK_TIMEOUT", description="Webhook timeout in seconds")
+    max_webhook_retries: int = Field(default=3, env="MCP_WEBHOOK_MAX_RETRIES", description="Maximum webhook retries")
+    
+    class Config:
+        env_prefix = "MCP_ADVANCED_"
+
+
 class ServerConfig(BaseSettings):
     """Configuration for MCP server."""
     
@@ -128,6 +170,8 @@ class Config(BaseSettings):
     mem0: Mem0Config = Field(default_factory=Mem0Config)
     session: SessionConfig = Field(default_factory=SessionConfig)
     prompts: PromptsConfig = Field(default_factory=PromptsConfig)
+    http_integration: HTTPIntegrationConfig = Field(default_factory=HTTPIntegrationConfig)
+    advanced_features: AdvancedFeaturesConfig = Field(default_factory=AdvancedFeaturesConfig)
     server: ServerConfig = Field(default_factory=ServerConfig)
     
     class Config:

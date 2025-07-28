@@ -3,11 +3,11 @@ title: project-isolation-configuration
 type: note
 permalink: docs/02-installation/project-isolation-configuration
 tags:
-- '[]project-isolation'
-- multi-tenant'
-- configuration'
-- '''docker'''
-- '''environment-variables'']'
+- project-isolation
+- multi-tenant
+- configuration
+- docker
+- environment-variables
 ---
 
 # Project Isolation Configuration in MCP RAG Server

@@ -39,18 +39,7 @@ class Mem0Service:
     async def initialize(self):
         """Initialize the mem0 memory layer."""
         try:
-            # Try to use mem0 package first (open source version)
-            try:
-                from mem0 import Memory
-                # Open source mem0 doesn't require API key
-                self.memory = Memory()
-                self._initialized = True
-                logger.info("Mem0 service initialized with open source package")
-                return
-            except ImportError:
-                logger.warning("mem0 package not available, using local storage")
-            
-            # Fallback to local storage
+            # Use local storage for self-hosted mem0 (no API key required)
             await self._initialize_local_storage()
                     
         except Exception as e:
@@ -114,52 +103,42 @@ class Mem0Service:
             raise RuntimeError("Mem0 service not initialized")
         
         try:
-            if self.memory:
-                # Use mem0 package (open source)
-                result = self.memory.add(
-                    user_id=user_id,
-                    memory=content,
-                    memory_type=memory_type,
-                    metadata=metadata or {}
-                )
-                memory_id = result.get("id", str(datetime.now().timestamp()))
-            else:
-                # Local storage
-                memory_id = str(datetime.now().timestamp())
-                
-                # Initialize user memories if not exists
-                if user_id not in self.local_storage["memories"]:
-                    self.local_storage["memories"][user_id] = []
-                
-                # Create memory entry
-                memory_entry = {
-                    "id": memory_id,
-                    "memory": content,
-                    "memory_type": memory_type,
-                    "metadata": metadata or {},
-                    "created_at": datetime.now().isoformat(),
-                    "user_id": user_id
-                }
-                
-                # Add session_id if provided
-                if session_id:
-                    memory_entry["session_id"] = session_id
-                
-                # Add embedding if provided
-                if embedding:
-                    memory_entry["embedding"] = embedding
-                
-                # Add to local storage
-                self.local_storage["memories"][user_id].append(memory_entry)
-                
-                # Limit memory size
-                if len(self.local_storage["memories"][user_id]) > self.config.memory_size:
-                    self.local_storage["memories"][user_id] = self.local_storage["memories"][user_id][-self.config.memory_size:]
-                
-                # Save to disk
-                await self._save_local_storage()
-                
-                logger.debug(f"Added local memory for user {user_id}: {content[:50]}... (with embedding: {embedding is not None})")
+            # Local storage only (self-hosted mem0)
+            memory_id = str(datetime.now().timestamp())
+            
+            # Initialize user memories if not exists
+            if user_id not in self.local_storage["memories"]:
+                self.local_storage["memories"][user_id] = []
+            
+            # Create memory entry
+            memory_entry = {
+                "id": memory_id,
+                "memory": content,
+                "memory_type": memory_type,
+                "metadata": metadata or {},
+                "created_at": datetime.now().isoformat(),
+                "user_id": user_id
+            }
+            
+            # Add session_id if provided
+            if session_id:
+                memory_entry["session_id"] = session_id
+            
+            # Add embedding if provided
+            if embedding:
+                memory_entry["embedding"] = embedding
+            
+            # Add to local storage
+            self.local_storage["memories"][user_id].append(memory_entry)
+            
+            # Limit memory size
+            if len(self.local_storage["memories"][user_id]) > self.config.memory_size:
+                self.local_storage["memories"][user_id] = self.local_storage["memories"][user_id][-self.config.memory_size:]
+            
+            # Save to disk
+            await self._save_local_storage()
+            
+            logger.debug(f"Added local memory for user {user_id}: {content[:50]}... (with embedding: {embedding is not None})")
             
             return memory_id
             
@@ -179,52 +158,42 @@ class Mem0Service:
             raise RuntimeError("Mem0 service not initialized")
         
         try:
-            if self.memory:
-                # Use mem0 package (open source)
-                result = self.memory.search(
-                    query=query,
-                    user_id=user_id,
-                    limit=limit,
-                    memory_type=memory_type
-                )
-                return result.get("results", [])
-            else:
-                # Local storage search
-                if user_id not in self.local_storage["memories"]:
-                    return []
+            # Local storage search only (self-hosted mem0)
+            if user_id not in self.local_storage["memories"]:
+                return []
+            
+            memories = self.local_storage["memories"][user_id]
+            
+            # Simple keyword-based search (can be improved with embeddings)
+            relevant_memories = []
+            query_lower = query.lower()
+            
+            for memory in memories:
+                if memory_type and memory.get("memory_type") != memory_type:
+                    continue
                 
-                memories = self.local_storage["memories"][user_id]
+                # Simple relevance scoring based on keyword matching
+                memory_text = memory.get("memory", "").lower()
+                relevance_score = 0
                 
-                # Simple keyword-based search (can be improved with embeddings)
-                relevant_memories = []
-                query_lower = query.lower()
+                # Count matching words
+                query_words = query_lower.split()
+                for word in query_words:
+                    if word in memory_text:
+                        relevance_score += 1
                 
-                for memory in memories:
-                    if memory_type and memory.get("memory_type") != memory_type:
-                        continue
-                    
-                    # Simple relevance scoring based on keyword matching
-                    memory_text = memory.get("memory", "").lower()
-                    relevance_score = 0
-                    
-                    # Count matching words
-                    query_words = query_lower.split()
-                    for word in query_words:
-                        if word in memory_text:
-                            relevance_score += 1
-                    
-                    if relevance_score > 0:
-                        relevant_memories.append({
-                            **memory,
-                            "relevance": relevance_score / len(query_words)
-                        })
-                
-                # Sort by relevance and limit results
-                relevant_memories.sort(key=lambda x: x["relevance"], reverse=True)
-                relevant_memories = relevant_memories[:limit]
-                
-                logger.debug(f"Local memory search for user {user_id}: {query[:50]}... (found {len(relevant_memories)} results)")
-                return relevant_memories
+                if relevance_score > 0:
+                    relevant_memories.append({
+                        **memory,
+                        "relevance": relevance_score / len(query_words)
+                    })
+            
+            # Sort by relevance and limit results
+            relevant_memories.sort(key=lambda x: x["relevance"], reverse=True)
+            relevant_memories = relevant_memories[:limit]
+            
+            logger.debug(f"Local memory search for user {user_id}: {query[:50]}... (found {len(relevant_memories)} results)")
+            return relevant_memories
             
         except Exception as e:
             logger.error(f"Error searching memories: {e}")
@@ -241,30 +210,21 @@ class Mem0Service:
             raise RuntimeError("Mem0 service not initialized")
         
         try:
-            if self.memory:
-                # Use mem0 package (open source)
-                result = self.memory.list(
-                    user_id=user_id,
-                    limit=limit,
-                    memory_type=memory_type
-                )
-                return result.get("memories", [])
-            else:
-                # Local storage
-                if user_id not in self.local_storage["memories"]:
-                    return []
-                
-                memories = self.local_storage["memories"][user_id]
-                
-                # Filter by memory type if specified
-                if memory_type:
-                    memories = [m for m in memories if m.get("memory_type") == memory_type]
-                
-                # Limit results
-                memories = memories[-limit:] if limit > 0 else memories
-                
-                logger.debug(f"Local memory list for user {user_id}: {len(memories)} memories")
-                return memories
+            # Local storage only (self-hosted mem0)
+            if user_id not in self.local_storage["memories"]:
+                return []
+            
+            memories = self.local_storage["memories"][user_id]
+            
+            # Filter by memory type if specified
+            if memory_type:
+                memories = [m for m in memories if m.get("memory_type") == memory_type]
+            
+            # Limit results
+            memories = memories[-limit:] if limit > 0 else memories
+            
+            logger.debug(f"Local memory list for user {user_id}: {len(memories)} memories")
+            return memories
             
         except Exception as e:
             logger.error(f"Error getting user memories: {e}")
@@ -330,13 +290,20 @@ class Mem0Service:
             raise RuntimeError("Mem0 service not initialized")
         
         try:
-            if self.memory:
-                # Use mem0 API
-                self.memory.clear(user_id=user_id, memory_type=memory_type)
+            # Local storage only (self-hosted mem0)
+            if user_id in self.local_storage["memories"]:
+                if memory_type:
+                    # Clear specific memory type
+                    self.local_storage["memories"][user_id] = [
+                        m for m in self.local_storage["memories"][user_id] 
+                        if m.get("memory_type") != memory_type
+                    ]
+                else:
+                    # Clear all memories
+                    self.local_storage["memories"][user_id] = []
+                
+                await self._save_local_storage()
                 logger.info(f"Cleared memories for user {user_id}")
-            else:
-                # Local fallback
-                logger.debug(f"Local memory clear for user {user_id}")
             
             return True
             
@@ -350,18 +317,28 @@ class Mem0Service:
             raise RuntimeError("Mem0 service not initialized")
         
         try:
-            if self.memory:
-                # Use mem0 API
-                stats = self.memory.stats(user_id=user_id)
-                return stats
-            else:
-                # Local fallback
+            # Local storage only (self-hosted mem0)
+            if user_id not in self.local_storage["memories"]:
                 return {
                     "user_id": user_id,
                     "total_memories": 0,
                     "memory_types": {},
                     "last_updated": datetime.now().isoformat()
                 }
+            
+            memories = self.local_storage["memories"][user_id]
+            memory_types = {}
+            
+            for memory in memories:
+                memory_type = memory.get("memory_type", "unknown")
+                memory_types[memory_type] = memory_types.get(memory_type, 0) + 1
+            
+            return {
+                "user_id": user_id,
+                "total_memories": len(memories),
+                "memory_types": memory_types,
+                "last_updated": datetime.now().isoformat()
+            }
             
         except Exception as e:
             logger.error(f"Error getting memory stats: {e}")

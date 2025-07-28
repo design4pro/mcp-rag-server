@@ -3,10 +3,10 @@ title: cursor-ide-automatic-container-management
 type: note
 permalink: docs/02-installation/cursor-ide-automatic-container-management
 tags:
-- '[''cursor-ide'''
+- cursor-ide
 - docker
-- ragproject-isolation'
-- '''automatic-management'']'
+- ragproject-isolation
+- automatic-management
 ---
 
 # Cursor IDE Automatic Container Management for MCP RAG Server

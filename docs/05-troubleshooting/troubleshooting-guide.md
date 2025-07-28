@@ -3,10 +3,10 @@ title: troubleshooting-guide
 type: note
 permalink: docs/05-troubleshooting/troubleshooting-guide
 tags:
-- '[]troubleshooting'''
-- '''debugging'''
-- '''issues'''
-- '''obsidian-compatible'']'
+- troubleshooting
+- debugging
+- issues
+- obsidian-compatible
 ---
 
 # Troubleshooting Guide

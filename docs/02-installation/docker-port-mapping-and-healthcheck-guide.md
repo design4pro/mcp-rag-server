@@ -3,10 +3,10 @@ title: docker-port-mapping-and-healthcheck-guide
 type: note
 permalink: docs/02-installation/docker-port-mapping-and-healthcheck-guide
 tags:
-- '[''docker'
-- port-mapping'
-- '''healthcheck'''
-- '''fastmcp'''
+- docker
+- port-mapping
+- healthcheck
+- fastmcp
 - configuration
 ---
 

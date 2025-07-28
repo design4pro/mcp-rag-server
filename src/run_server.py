@@ -29,7 +29,7 @@ def signal_handler(signum, frame):
     """Handle shutdown signals gracefully."""
     logger.info(f"Received signal {signum}, shutting down gracefully...")
     if server_instance:
-        asyncio.create_task(server_instance.cleanup_services())
+        asyncio.create_task(server_instance.cleanup())
     sys.exit(0)
 
 def main():
@@ -45,14 +45,11 @@ def main():
         server_instance = server
         
         # Initialize services
-        asyncio.run(server.initialize_services())
-        
-        # Get the FastMCP server
-        mcp_server = server.get_server()
+        asyncio.run(server.initialize())
         
         # Run the server using stdio transport
         logger.info("Starting MCP RAG Server on STDIO...")
-        mcp_server.run(transport="stdio")
+        server.mcp.run(transport="stdio")
         
     except KeyboardInterrupt:
         logger.info("Received keyboard interrupt, shutting down...")
@@ -61,7 +58,7 @@ def main():
         sys.exit(1)
     finally:
         if server_instance:
-            asyncio.run(server_instance.cleanup_services())
+            asyncio.run(server_instance.cleanup())
 
 if __name__ == "__main__":
     main()

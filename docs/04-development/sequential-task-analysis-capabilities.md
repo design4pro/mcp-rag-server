@@ -3,11 +3,11 @@ title: sequential-task-analysis-capabilities
 type: note
 permalink: docs/04-development/sequential-task-analysis-capabilities
 tags:
-- '[''sequential-analysis'''
-- task-planning'
-- reasoning'
-- rag-capabilities'
-- '''workflow'']'
+- sequential-analysis
+- task-planning
+- reasoning
+- rag-capabilities
+- workflow
 ---
 
 # Sequential Task Analysis Capabilities in MCP RAG Server

@@ -22,11 +22,15 @@ from .services.rag_service import RAGService
 from .services.reasoning_service import AdvancedReasoningEngine, ReasoningConfig
 from .services.context_service import EnhancedContextService, ContextConfig
 from .services.prompts_service import PromptsService
+from .services.code_analysis_service import CodeAnalysisService
 from .tools.document_tools import DocumentTools
 from .tools.search_tools import SearchTools
 from .tools.memory_tools import MemoryTools
 from .tools.session_tools import SessionTools
 from .tools.ai_tools import AdvancedAITools
+from .tools.code_analysis_tools import CodeAnalysisTools
+from .tools.http_tools import HTTPIntegrationTools
+from .tools.advanced_features import AdvancedFeatures, StreamType
 from .resources.document_resources import DocumentResources
 from .resources.memory_resources import MemoryResources
 from .validation import (
@@ -64,6 +68,7 @@ class MCPRAGServer:
         self.reasoning_service: AdvancedReasoningEngine | None = None
         self.context_service: EnhancedContextService | None = None
         self.prompts_service: PromptsService | None = None
+        self.code_analysis_service: CodeAnalysisService | None = None
         
         # Initialize tool and resource instances
         self.document_tools: DocumentTools | None = None
@@ -71,6 +76,9 @@ class MCPRAGServer:
         self.memory_tools: MemoryTools | None = None
         self.session_tools: SessionTools | None = None
         self.ai_tools: AdvancedAITools | None = None
+        self.code_analysis_tools: CodeAnalysisTools | None = None
+        self.http_tools: HTTPIntegrationTools | None = None
+        self.advanced_features: AdvancedFeatures | None = None
         self.document_resources: DocumentResources | None = None
         self.memory_resources: MemoryResources | None = None
         
@@ -78,6 +86,7 @@ class MCPRAGServer:
         self._register_tools()
         self._register_resources()
         self._register_prompts()
+        self._register_advanced_tools()
     
     def _register_tools(self):
         """Register MCP tools with proper validation and error handling."""
@@ -97,7 +106,8 @@ class MCPRAGServer:
                         "rag": self.rag_service is not None,
                         "reasoning": self.reasoning_service is not None,
                         "context": self.context_service is not None,
-                        "prompts": self.prompts_service is not None
+                        "prompts": self.prompts_service is not None,
+                        "code_analysis": self.code_analysis_service is not None
                     }
                 }, "health_check")
             except Exception as e:
@@ -373,6 +383,239 @@ class MCPRAGServer:
                 return result
             except Exception as e:
                 return create_error_response(e, "context_analysis")
+        
+        # Code Analysis Tools
+        @self.mcp.tool()
+        async def analyze_source_code(file_path: str, language: str = "auto") -> dict:
+            """Analyze source code file and extract structural information."""
+            try:
+                if not self.code_analysis_tools:
+                    return create_error_response("Code analysis tools not initialized", "analyze_source_code")
+                
+                result = await self.code_analysis_tools.handle_analyze_source_code({
+                    "file_path": file_path,
+                    "language": language
+                })
+                return create_success_response({"content": result.content[0].text}, "analyze_source_code")
+            except Exception as e:
+                logger.error(f"Error in analyze_source_code: {e}")
+                return create_error_response(str(e), "analyze_source_code")
+        
+        @self.mcp.tool()
+        async def analyze_code_string(code: str, language: str) -> dict:
+            """Analyze code string and extract structural information."""
+            try:
+                if not self.code_analysis_tools:
+                    return create_error_response("Code analysis tools not initialized", "analyze_code_string")
+                
+                result = await self.code_analysis_tools.handle_analyze_code_string({
+                    "code": code,
+                    "language": "python"
+                })
+                return create_success_response({"content": result.content[0].text}, "analyze_code_string")
+            except Exception as e:
+                logger.error(f"Error in analyze_code_string: {e}")
+                return create_error_response(str(e), "analyze_code_string")
+        
+        @self.mcp.tool()
+        async def calculate_code_metrics(file_path: str, language: str = "auto") -> dict:
+            """Calculate comprehensive code metrics including complexity and quality indicators."""
+            try:
+                if not self.code_analysis_tools:
+                    return create_error_response("Code analysis tools not initialized", "calculate_code_metrics")
+                
+                result = await self.code_analysis_tools.handle_calculate_code_metrics({
+                    "file_path": file_path,
+                    "language": language
+                })
+                return create_success_response({"content": result.content[0].text}, "calculate_code_metrics")
+            except Exception as e:
+                logger.error(f"Error in calculate_code_metrics: {e}")
+                return create_error_response(str(e), "calculate_code_metrics")
+        
+        @self.mcp.tool()
+        async def extract_functions(file_path: str, language: str = "auto") -> dict:
+            """Extract function definitions and their metadata from source code."""
+            try:
+                if not self.code_analysis_tools:
+                    return create_error_response("Code analysis tools not initialized", "extract_functions")
+                
+                result = await self.code_analysis_tools.handle_extract_functions({
+                    "file_path": file_path,
+                    "language": language
+                })
+                return create_success_response({"content": result.content[0].text}, "extract_functions")
+            except Exception as e:
+                logger.error(f"Error in extract_functions: {e}")
+                return create_error_response(str(e), "extract_functions")
+        
+        @self.mcp.tool()
+        async def extract_classes(file_path: str, language: str = "auto") -> dict:
+            """Extract class definitions and their relationships from source code."""
+            try:
+                if not self.code_analysis_tools:
+                    return create_error_response("Code analysis tools not initialized", "extract_classes")
+                
+                result = await self.code_analysis_tools.handle_extract_classes({
+                    "file_path": file_path,
+                    "language": language
+                })
+                return create_success_response({"content": result.content[0].text}, "extract_classes")
+            except Exception as e:
+                logger.error(f"Error in extract_classes: {e}")
+                return create_error_response(str(e), "extract_classes")
+        
+        @self.mcp.tool()
+        async def analyze_dependencies(file_path: str, language: str = "auto") -> dict:
+            """Analyze import statements and dependencies in source code."""
+            try:
+                if not self.code_analysis_tools:
+                    return create_error_response("Code analysis tools not initialized", "analyze_dependencies")
+                
+                result = await self.code_analysis_tools.handle_analyze_dependencies({
+                    "file_path": file_path,
+                    "language": language
+                })
+                return create_success_response({"content": result.content[0].text}, "analyze_dependencies")
+            except Exception as e:
+                logger.error(f"Error in analyze_dependencies: {e}")
+                return create_error_response(str(e), "analyze_dependencies")
+        
+        @self.mcp.tool()
+        async def detect_code_patterns(file_path: str, language: str = "auto") -> dict:
+            """Detect common coding patterns and anti-patterns in source code."""
+            try:
+                if not self.code_analysis_tools:
+                    return create_error_response("Code analysis tools not initialized", "detect_code_patterns")
+                
+                result = await self.code_analysis_tools.handle_detect_code_patterns({
+                    "file_path": file_path,
+                    "language": language
+                })
+                return create_success_response({"content": result.content[0].text}, "detect_code_patterns")
+            except Exception as e:
+                logger.error(f"Error in detect_code_patterns: {e}")
+                return create_error_response(str(e), "detect_code_patterns")
+    
+    def _register_advanced_tools(self):
+        """Register advanced MCP tools including HTTP integration and streaming."""
+        
+        # HTTP Integration Tools
+        @self.mcp.tool()
+        async def fetch_web_content(url: str, user_id: str = "default", auto_add_to_rag: bool = True) -> dict:
+            """Fetch content from URL and optionally add to RAG system."""
+            try:
+                if not self.http_tools:
+                    raise RuntimeError("HTTP tools not initialized")
+                
+                result = await self.http_tools.fetch_web_content(url, user_id, auto_add_to_rag)
+                return result
+            except Exception as e:
+                return create_error_response(e, "fetch_web_content")
+        
+        @self.mcp.tool()
+        async def call_external_api(endpoint: str, method: str = "GET", data: dict = None, headers: dict = None, user_id: str = "default") -> dict:
+            """Call external API and optionally process response."""
+            try:
+                if not self.http_tools:
+                    raise RuntimeError("HTTP tools not initialized")
+                
+                result = await self.http_tools.call_external_api(endpoint, method, data, headers, user_id)
+                return result
+            except Exception as e:
+                return create_error_response(e, "call_external_api")
+        
+        @self.mcp.tool()
+        async def batch_fetch_urls(urls: list, user_id: str = "default", max_concurrent: int = 5) -> dict:
+            """Fetch content from multiple URLs in parallel."""
+            try:
+                if not self.http_tools:
+                    raise RuntimeError("HTTP tools not initialized")
+                
+                result = await self.http_tools.batch_fetch_urls(urls, user_id, max_concurrent)
+                return result
+            except Exception as e:
+                return create_error_response(e, "batch_fetch_urls")
+        
+        # Advanced Features - Batch Processing
+        @self.mcp.tool()
+        async def batch_add_documents(documents: list, user_id: str = "default", batch_size: int = 10, parallel_processing: bool = True) -> dict:
+            """Add multiple documents to RAG system in batch."""
+            try:
+                if not self.advanced_features:
+                    raise RuntimeError("Advanced features not initialized")
+                
+                result = await self.advanced_features.batch_add_documents(documents, user_id, batch_size, parallel_processing)
+                return result
+            except Exception as e:
+                return create_error_response(e, "batch_add_documents")
+        
+        @self.mcp.tool()
+        async def batch_process_memories(memories: list, user_id: str = "default", batch_size: int = 20, memory_type: str = "conversation") -> dict:
+            """Process multiple memories in batch."""
+            try:
+                if not self.advanced_features:
+                    raise RuntimeError("Advanced features not initialized")
+                
+                result = await self.advanced_features.batch_process_memories(memories, user_id, batch_size, memory_type)
+                return result
+            except Exception as e:
+                return create_error_response(e, "batch_process_memories")
+        
+        # Advanced Features - Streaming
+        @self.mcp.tool()
+        async def start_streaming(stream_type: str, user_id: str = "default", session_id: str = None, callback_url: str = None) -> dict:
+            """Start real-time streaming for specified type."""
+            try:
+                if not self.advanced_features:
+                    raise RuntimeError("Advanced features not initialized")
+                
+                # Convert string to StreamType enum
+                try:
+                    stream_type_enum = StreamType(stream_type)
+                except ValueError:
+                    return create_error_response(ValueError(f"Invalid stream type: {stream_type}"), "start_streaming")
+                
+                result = await self.advanced_features.start_streaming(stream_type_enum, user_id, session_id, callback_url)
+                return result
+            except Exception as e:
+                return create_error_response(e, "start_streaming")
+        
+        @self.mcp.tool()
+        async def stop_streaming(stream_id: str) -> dict:
+            """Stop streaming for specified stream ID."""
+            try:
+                if not self.advanced_features:
+                    raise RuntimeError("Advanced features not initialized")
+                
+                result = await self.advanced_features.stop_streaming(stream_id)
+                return result
+            except Exception as e:
+                return create_error_response(e, "stop_streaming")
+        
+        @self.mcp.tool()
+        async def get_stream_status(stream_id: str) -> dict:
+            """Get status of streaming for specified stream ID."""
+            try:
+                if not self.advanced_features:
+                    raise RuntimeError("Advanced features not initialized")
+                
+                result = await self.advanced_features.get_stream_status(stream_id)
+                return result
+            except Exception as e:
+                return create_error_response(e, "get_stream_status")
+        
+        @self.mcp.tool()
+        async def list_active_streams(user_id: str = None) -> dict:
+            """List all active streams."""
+            try:
+                if not self.advanced_features:
+                    raise RuntimeError("Advanced features not initialized")
+                
+                result = await self.advanced_features.list_active_streams(user_id)
+                return result
+            except Exception as e:
+                return create_error_response(e, "list_active_streams")
     
     def _register_resources(self):
         """Register MCP resources."""
@@ -413,38 +656,63 @@ class MCPRAGServer:
     
     def _register_prompts(self):
         """Register MCP prompts functionality."""
-        # Initialize prompts service
-        self.prompts_service = PromptsService()
-        
-        # Register prompts/list
-        @self.mcp.prompts.list
-        async def list_prompts(cursor: str = None) -> dict:
-            """List available prompts."""
-            try:
-                if not self.prompts_service:
-                    raise RuntimeError("Prompts service not initialized")
-                
-                result = self.prompts_service.list_prompts(cursor)
-                return result
-            except Exception as e:
-                logger.error(f"Error listing prompts: {e}")
-                return {"prompts": [], "nextCursor": None}
-        
-        # Register prompts/get
-        @self.mcp.prompts.get
-        async def get_prompt(name: str, arguments: dict = None) -> dict:
-            """Get a specific prompt with optional argument substitution."""
-            try:
-                if not self.prompts_service:
-                    raise RuntimeError("Prompts service not initialized")
-                
-                result = self.prompts_service.get_prompt(name, arguments)
-                return result
-            except Exception as e:
-                logger.error(f"Error getting prompt '{name}': {e}")
-                raise
+        try:
+            # Initialize prompts service
+            self.prompts_service = PromptsService()
+            
+            # Register prompts using FastMCP @mcp.prompt() decorator
+            @self.mcp.prompt()
+            def ask_about_topic(topic: str) -> str:
+                """Generates a user message asking for an explanation of a topic."""
+                return f"Can you please explain the concept of '{topic}'?"
+            
+            @self.mcp.prompt()
+            def generate_code_request(language: str, task_description: str) -> str:
+                """Generates a user message requesting code generation."""
+                return f"Write a {language} function that performs the following task: {task_description}"
+            
+            @self.mcp.prompt()
+            def data_analysis_prompt(
+                data_uri: str,
+                analysis_type: str = "summary",
+                include_charts: bool = False
+            ) -> str:
+                """Creates a request to analyze data with specific parameters."""
+                prompt = f"Please perform a '{analysis_type}' analysis on the data found at {data_uri}."
+                if include_charts:
+                    prompt += " Include relevant charts and visualizations."
+                return prompt
+            
+            @self.mcp.prompt()
+            def document_search_prompt(query: str, limit: int = 5) -> str:
+                """Generates a prompt for searching documents."""
+                return f"Search for documents related to: '{query}'. Return up to {limit} relevant results."
+            
+            @self.mcp.prompt()
+            def memory_context_prompt(user_id: str, query: str) -> str:
+                """Generates a prompt for retrieving memory context."""
+                return f"Retrieve relevant memories for user '{user_id}' related to: '{query}'"
+            
+            @self.mcp.prompt()
+            def code_analysis_prompt(file_path: str, analysis_type: str = "comprehensive") -> str:
+                """Generates a prompt for code analysis."""
+                return f"Perform a {analysis_type} analysis of the code in file: {file_path}"
+            
+            logger.info("Prompts functionality initialized successfully with FastMCP")
+                    
+        except Exception as e:
+            logger.warning(f"Prompts functionality not available: {e}")
+            logger.info("Prompts functionality not supported in current MCP version")
     
     async def initialize(self):
+        """Initialize all services."""
+        await self._initialize_services()
+    
+    async def initialize_services(self):
+        """Alias for initialize() for backward compatibility."""
+        await self.initialize()
+    
+    async def _initialize_services(self):
         """Initialize all services."""
         try:
             logger.info("Initializing MCP RAG Server...")
@@ -489,15 +757,33 @@ class MCPRAGServer:
             self.context_service = EnhancedContextService(context_config)
             logger.info("Context service initialized")
             
+            # Initialize Prompts service
+            self.prompts_service = PromptsService()
+            logger.info("Prompts service initialized")
+            
+            # Initialize Code Analysis service
+            self.code_analysis_service = CodeAnalysisService()
+            logger.info("Code Analysis service initialized")
+            
             # Initialize tool instances
             self.document_tools = DocumentTools(self.rag_service)
             self.search_tools = SearchTools(self.rag_service)
-            self.memory_tools = MemoryTools(self.mem0_service)
+            self.memory_tools = MemoryTools(self.mem0_service, self.rag_service)
             self.session_tools = SessionTools(self.session_service)
             self.ai_tools = AdvancedAITools(
                 self.reasoning_service,
-                self.context_service,
-                self.rag_service
+                self.context_service
+            )
+            self.code_analysis_tools = CodeAnalysisTools(self.code_analysis_service)
+            
+            # Initialize advanced tools
+            from .services.document_processor import DocumentProcessor
+            document_processor = DocumentProcessor()
+            self.http_tools = HTTPIntegrationTools(self.rag_service, document_processor)
+            self.advanced_features = AdvancedFeatures(
+                self.rag_service,
+                self.mem0_service,
+                self.session_service
             )
             
             # Initialize resource instances
@@ -511,6 +797,14 @@ class MCPRAGServer:
             raise
     
     async def cleanup(self):
+        """Cleanup all services."""
+        await self._cleanup_services()
+    
+    async def cleanup_services(self):
+        """Alias for cleanup() for backward compatibility."""
+        await self.cleanup()
+    
+    async def _cleanup_services(self):
         """Cleanup resources."""
         try:
             if self.gemini_service:
@@ -521,6 +815,12 @@ class MCPRAGServer:
                 await self.mem0_service.cleanup()
             if self.session_service:
                 await self.session_service.cleanup()
+            
+            # Cleanup advanced tools
+            if self.http_tools:
+                await self.http_tools.cleanup()
+            if self.advanced_features:
+                await self.advanced_features.cleanup()
             
             logger.info("MCP RAG Server cleanup completed")
             
