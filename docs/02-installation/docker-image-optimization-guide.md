@@ -73,8 +73,9 @@ Created `src/mcp_rag_server/utils/text_splitter.py` with:
 ### New Files
 - `src/mcp_rag_server/utils/__init__.py` - Utils module
 - `src/mcp_rag_server/utils/text_splitter.py` - Custom text splitter
-- `requirements-optimized.txt` - Optimized dependencies
-- `docker/Dockerfile.optimized` - Multi-stage optimized Dockerfile
+- `requirements.txt` - Optimized dependencies (now default)
+- `docker/Dockerfile` - Multi-stage optimized Dockerfile (now default)
+- `docker/Dockerfile.original` - Original Dockerfile (backup)
 - `.dockerignore` - Build context exclusions
 
 ### Modified Files
@@ -92,7 +93,7 @@ Created `src/mcp_rag_server/utils/text_splitter.py` with:
 ### Performance Testing
 ```bash
 # Test text splitting functionality
-docker run --rm -it mcp-rag-server:optimized python -c "
+docker run --rm -it mcp-rag-server:latest python -c "
 from mcp_rag_server.utils.text_splitter import SimpleTextSplitter
 splitter = SimpleTextSplitter(chunk_size=100, chunk_overlap=20)
 chunks = splitter.split_text('Long text that should be split into multiple chunks...')
@@ -102,13 +103,13 @@ print(f'Split into {len(chunks)} chunks')
 
 ## Usage Instructions
 
-### Building Optimized Image
+### Building Docker Image
 ```bash
-# Build optimized image
-docker build -f docker/Dockerfile.optimized -t mcp-rag-server:optimized .
+# Build the optimized image (now the default)
+docker build -f docker/Dockerfile -t mcp-rag-server:latest .
 
-# Or use the original Dockerfile for comparison
-docker build -f docker/Dockerfile -t mcp-rag-server:original .
+# Or use the original Dockerfile for comparison (backup)
+docker build -f docker/Dockerfile.original -t mcp-rag-server:original .
 ```
 
 ### Running Optimized Container
@@ -123,20 +124,20 @@ docker run -i --rm \
   -e MCP_QDRANT_URL=http://host.docker.internal:6333 \
   -e MCP_MEM0_STORAGE_PATH=/app/mem0_data \
   -v mcp_rag_mem0_data_default:/app/mem0_data \
-  mcp-rag-server:optimized
+  mcp-rag-server:latest
 ```
 
 ## Migration Guide
 
 ### For Existing Users
 1. **No code changes required** - All APIs remain the same
-2. **Update Dockerfile reference** to use `docker/Dockerfile.optimized`
-3. **Update requirements** to use `requirements-optimized.txt` if building locally
+2. **Update Dockerfile reference** to use `docker/Dockerfile`
+3. **Update requirements** to use `requirements.txt` if building locally
 4. **Test functionality** - All features work identically
 
 ### For Development
-1. **Local development:** Use `requirements-optimized.txt`
-2. **Docker builds:** Use `docker/Dockerfile.optimized`
+1. **Local development:** Use `requirements.txt`
+2. **Docker builds:** Use `docker/Dockerfile`
 3. **CI/CD:** Update build scripts to use optimized Dockerfile
 
 ## Benefits Achieved
@@ -194,3 +195,20 @@ The Docker image optimization successfully achieved an **80% size reduction** fr
 5. **Build context optimization** - Faster builds
 
 All functionality has been preserved and tested, making this optimization ready for production use.
+## Current Status
+
+**✅ OPTIMIZED VERSION IS NOW THE DEFAULT**
+
+The optimized Docker image is now the standard version used for all builds:
+
+- **Default Dockerfile:** `docker/Dockerfile` (optimized multi-stage build)
+- **Default requirements:** `requirements.txt` (optimized dependencies)
+- **Image size:** 261MB (80% reduction from 3GB+)
+- **All functionality preserved:** Text splitting, RAG, memory, AI tools
+
+### Backup Files
+- `docker/Dockerfile.original` - Original Dockerfile for reference
+- Original requirements can be found in git history
+
+### Migration Complete
+No further action required - the optimized version is now the default for all users and CI/CD pipelines.

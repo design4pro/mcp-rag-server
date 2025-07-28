@@ -1,14 +1,22 @@
+# Core MCP dependencies
 fastmcp>=2.10.6
+
+# Vector database
 qdrant-client>=1.7.0
+
+# AI/ML dependencies
 google-genai>=0.3.0
+numpy>=1.24.0
+tiktoken>=0.5.0
+
+# Configuration and validation
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
 python-dotenv>=1.0.0
+
+# HTTP and networking
 httpx>=0.25.0
-asyncio-mqtt>=0.16.0
-langchain>=0.1.0
-langchain-text-splitters>=0.0.1
-sentence-transformers>=2.2.0
-numpy>=1.24.0
-tiktoken>=0.5.0
 websockets>=11.0.0
+
+# Async utilities
+asyncio-mqtt>=0.16.0 
