@@ -10,6 +10,7 @@ import asyncio
 import logging
 
 # Add the src directory to the path
+# When run_server.py is in /app/, src is in /app/src/
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from mcp_rag_server.server import MCPRAGServer
