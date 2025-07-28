@@ -95,4 +95,4 @@ dmypy.json
 # Cursor IDE
 .cursorindexingignore
 .cursorignore
-.cursor
+.cursor/

@@ -11,7 +11,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from ..utils.text_splitter import SimpleTextSplitter
 import tiktoken
 
 logger = logging.getLogger(__name__)
@@ -32,11 +32,11 @@ class DocumentProcessor:
         self.max_chunks_per_document = max_chunks_per_document
         
         # Initialize text splitter
-        self.text_splitter = RecursiveCharacterTextSplitter(
+        self.text_splitter = SimpleTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
-            length_function=len,
-            separators=["\n\n", "\n", " ", ""]
+            separators=["\n\n", "\n", " ", ""],
+            length_function=len
         )
         
         # Initialize tokenizer for token counting
