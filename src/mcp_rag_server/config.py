@@ -152,6 +152,43 @@ class AdvancedFeaturesConfig(BaseSettings):
         env_prefix = "MCP_ADVANCED_"
 
 
+class CodeAnalysisConfig(BaseSettings):
+    """Configuration for code analysis features."""
+    
+    # Project settings
+    project_root: str = Field(default="", description="Root directory of the project to analyze")
+    auto_detect_project: bool = Field(default=True, description="Automatically detect project root")
+    
+    # File search settings
+    search_patterns: list = Field(default=[
+        "*.py", "*.js", "*.ts", "*.jsx", "*.tsx", "*.java", "*.cpp", "*.c", "*.h", 
+        "*.go", "*.rs", "*.php", "*.rb", "*.swift", "*.kt", "*.scala"
+    ], description="File patterns to include in project search")
+    
+    exclude_patterns: list = Field(default=[
+        "node_modules/*", "venv/*", ".venv/*", "__pycache__/*", "*.pyc", 
+        ".git/*", "build/*", "dist/*", "target/*", "*.log", "*.tmp"
+    ], description="File patterns to exclude from project search")
+    
+    max_search_depth: int = Field(default=10, description="Maximum directory depth for file search")
+    max_file_size: int = Field(default=1048576, description="Maximum file size to analyze (1MB)")
+    
+    # Analysis settings
+    enable_cross_file_analysis: bool = Field(default=True, description="Enable analysis across multiple files")
+    enable_dependency_analysis: bool = Field(default=True, description="Enable dependency analysis")
+    enable_complexity_analysis: bool = Field(default=True, description="Enable code complexity analysis")
+    
+    # Common project directories to search
+    common_project_dirs: list = Field(default=[
+        "/workspace", "/app", "/code", "/src", "/project", "/repo"
+    ], description="Common project directory names to search")
+    
+    model_config = {
+        "env_prefix": "MCP_CODE_",
+        "extra": "ignore"
+    }
+
+
 class ServerConfig(BaseSettings):
     """Configuration for MCP server."""
     
@@ -174,6 +211,7 @@ class Config(BaseSettings):
     prompts: PromptsConfig = Field(default_factory=PromptsConfig)
     http_integration: HTTPIntegrationConfig = Field(default_factory=HTTPIntegrationConfig)
     advanced_features: AdvancedFeaturesConfig = Field(default_factory=AdvancedFeaturesConfig)
+    code_analysis: CodeAnalysisConfig = Field(default_factory=CodeAnalysisConfig)
     server: ServerConfig = Field(default_factory=ServerConfig)
     
     class Config:

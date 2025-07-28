@@ -9,6 +9,7 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
+from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.models import InitializationOptions
@@ -517,6 +518,150 @@ class MCPRAGServer:
             except Exception as e:
                 logger.error(f"Error in detect_code_patterns: {e}")
                 return create_error_response(str(e), "detect_code_patterns")
+        
+        # Project management tools
+        @self.mcp.tool()
+        async def find_project_root(start_path: str = None) -> dict:
+            """Find the root directory of the current project."""
+            try:
+                if not self.code_analysis_service:
+                    return create_error_response("Code analysis service not initialized", "find_project_root")
+                
+                project_root = self.code_analysis_service.find_project_root(start_path)
+                if project_root:
+                    return create_success_response({
+                        "project_root": str(project_root),
+                        "exists": project_root.exists()
+                    }, "find_project_root")
+                else:
+                    return create_error_response("Project root not found", "find_project_root")
+            except Exception as e:
+                logger.error(f"Error in find_project_root: {e}")
+                return create_error_response(str(e), "find_project_root")
+        
+        @self.mcp.tool()
+        async def find_file_in_project(file_path: str, project_root: str = None) -> dict:
+            """Find a file within the project directory."""
+            try:
+                if not self.code_analysis_service:
+                    return create_error_response("Code analysis service not initialized", "find_file_in_project")
+                
+                root_path = Path(project_root) if project_root else None
+                found_path = self.code_analysis_service.find_file_in_project(file_path, root_path)
+                
+                if found_path:
+                    return create_success_response({
+                        "file_path": str(found_path),
+                        "exists": found_path.exists(),
+                        "size": found_path.stat().st_size if found_path.exists() else 0
+                    }, "find_file_in_project")
+                else:
+                    return create_error_response(f"File not found in project: {file_path}", "find_file_in_project")
+            except Exception as e:
+                logger.error(f"Error in find_file_in_project: {e}")
+                return create_error_response(str(e), "find_file_in_project")
+        
+        @self.mcp.tool()
+        async def list_project_files(file_type: str = None, project_root: str = None) -> dict:
+            """List all files in the project matching the search patterns."""
+            try:
+                if not self.code_analysis_service:
+                    return create_error_response("Code analysis service not initialized", "list_project_files")
+                
+                root_path = Path(project_root) if project_root else None
+                files = self.code_analysis_service.get_project_files(root_path, file_type)
+                
+                file_list = []
+                for file in files:
+                    try:
+                        file_list.append({
+                            "path": str(file),
+                            "name": file.name,
+                            "size": file.stat().st_size,
+                            "extension": file.suffix
+                        })
+                    except (OSError, PermissionError):
+                        # Skip files we can't access
+                        continue
+                
+                return create_success_response({
+                    "files": file_list,
+                    "count": len(file_list),
+                    "file_type": file_type,
+                    "project_root": str(root_path) if root_path else "auto-detected"
+                }, "list_project_files")
+            except Exception as e:
+                logger.error(f"Error in list_project_files: {e}")
+                return create_error_response(str(e), "list_project_files")
+        
+        @self.mcp.tool()
+        async def get_project_structure(max_depth: int = None, project_root: str = None) -> dict:
+            """Get the structure of the project directory."""
+            try:
+                if not self.code_analysis_service:
+                    return create_error_response("Code analysis service not initialized", "get_project_structure")
+                
+                root_path = Path(project_root) if project_root else None
+                structure = self.code_analysis_service.get_project_structure(root_path, max_depth)
+                
+                return create_success_response({
+                    "structure": structure,
+                    "project_root": str(root_path) if root_path else "auto-detected",
+                    "max_depth": max_depth
+                }, "get_project_structure")
+            except Exception as e:
+                logger.error(f"Error in get_project_structure: {e}")
+                return create_error_response(str(e), "get_project_structure")
+        
+        @self.mcp.tool()
+        async def analyze_project(file_type: str = None, project_root: str = None) -> dict:
+            """Analyze the entire project and provide comprehensive overview."""
+            try:
+                if not self.code_analysis_service:
+                    return create_error_response("Code analysis service not initialized", "analyze_project")
+                
+                root_path = Path(project_root) if project_root else None
+                files = self.code_analysis_service.get_project_files(root_path, file_type)
+                
+                analysis = {
+                    "project_root": str(root_path) if root_path else "auto-detected",
+                    "total_files": len(files),
+                    "file_types": {},
+                    "languages": {},
+                    "total_size": 0,
+                    "largest_files": []
+                }
+                
+                file_sizes = []
+                
+                for file in files:
+                    try:
+                        size = file.stat().st_size
+                        analysis["total_size"] += size
+                        file_sizes.append((file, size))
+                        
+                        # Count file types
+                        ext = file.suffix.lower()
+                        analysis["file_types"][ext] = analysis["file_types"].get(ext, 0) + 1
+                        
+                        # Detect language
+                        language = self.code_analysis_service._detect_language("", ext)
+                        if language != "unknown":
+                            analysis["languages"][language] = analysis["languages"].get(language, 0) + 1
+                    
+                    except (OSError, PermissionError):
+                        continue
+                
+                # Get largest files
+                file_sizes.sort(key=lambda x: x[1], reverse=True)
+                analysis["largest_files"] = [
+                    {"path": str(f), "size": s} for f, s in file_sizes[:10]
+                ]
+                
+                return create_success_response(analysis, "analyze_project")
+            except Exception as e:
+                logger.error(f"Error in analyze_project: {e}")
+                return create_error_response(str(e), "analyze_project")
     
     def _register_advanced_tools(self):
         """Register advanced MCP tools including HTTP integration and streaming."""

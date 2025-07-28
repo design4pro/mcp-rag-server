@@ -11,6 +11,10 @@ import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from pathlib import Path
+import fnmatch
+import os
+
+from ..config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -71,69 +75,224 @@ class CodeAnalysisService:
     
     def __init__(self):
         """Initialize the code analysis service."""
-        self.supported_languages = ["python", "javascript", "java", "rust", "go"]
+        self.config = get_config()
         self.language_patterns = {
-            "python": {
-                "function": r'def\s+\w+\s*\(',
-                "class": r'class\s+\w+',
-                "import": r'import\s+\w+|from\s+\w+\s+import'
-            },
             "javascript": {
-                "function": r'function\s+\w+\s*\(|const\s+\w+\s*=\s*\(|let\s+\w+\s*=\s*\(',
-                "class": r'class\s+\w+',
-                "import": r'import\s+.*from|const\s+\w+\s*=\s*require'
+                "function": r"function\s+(\w+)\s*\(",
+                "class": r"class\s+(\w+)",
+                "import": r"import\s+.*from\s+['\"]([^'\"]+)['\"]"
             },
-            "java": {
-                "function": r'public\s+\w+\s+\w+\s*\(|private\s+\w+\s+\w+\s*\(',
-                "class": r'public\s+class\s+\w+|private\s+class\s+\w+',
-                "import": r'import\s+\w+'
+            "typescript": {
+                "function": r"(?:function\s+(\w+)|(\w+)\s*[:=]\s*(?:async\s+)?function)",
+                "class": r"class\s+(\w+)",
+                "import": r"import\s+.*from\s+['\"]([^'\"]+)['\"]"
             },
-            "rust": {
-                "function": r'fn\s+\w+\s*\(',
-                "class": r'struct\s+\w+|enum\s+\w+',
-                "import": r'use\s+\w+'
-            },
-            "go": {
-                "function": r'func\s+\w+\s*\(',
-                "class": r'type\s+\w+\s+struct|type\s+\w+\s+interface',
-                "import": r'import\s+\w+'
+            "python": {
+                "function": r"def\s+(\w+)\s*\(",
+                "class": r"class\s+(\w+)",
+                "import": r"(?:from\s+(\w+)|import\s+(\w+))"
             }
         }
+
+    def find_project_root(self, start_path: str = None) -> Optional[Path]:
+        """Find the root directory of the current project."""
+        if start_path:
+            current = Path(start_path)
+        else:
+            current = Path.cwd()
+        
+        # If project_root is configured, use it
+        if self.config.code_analysis.project_root:
+            project_root = Path(self.config.code_analysis.project_root)
+            if project_root.exists():
+                return project_root
+        
+        # Auto-detect project root by looking for common project files
+        while current != current.parent:
+            project_files = [
+                "package.json", "pyproject.toml", "setup.py", "requirements.txt",
+                "Cargo.toml", "go.mod", "pom.xml", "build.gradle", "Makefile",
+                ".git", ".gitignore", "README.md", "LICENSE"
+            ]
+            
+            for file in project_files:
+                if (current / file).exists():
+                    return current
+            
+            current = current.parent
+        
+        # If no project root found, try common directories
+        for common_dir in self.config.code_analysis.common_project_dirs:
+            if Path(common_dir).exists():
+                return Path(common_dir)
+        
+        return None
+
+    def find_file_in_project(self, file_path: str, project_root: Path = None) -> Optional[Path]:
+        """Find a file within the project directory."""
+        if not project_root:
+            project_root = self.find_project_root()
+            if not project_root:
+                return None
+        
+        # Try direct path first
+        full_path = project_root / file_path
+        if full_path.exists():
+            return full_path
+        
+        # Search recursively in project
+        for pattern in self.config.code_analysis.search_patterns:
+            for file in project_root.rglob(pattern):
+                if file.name == Path(file_path).name or str(file).endswith(file_path):
+                    return file
+        
+        return None
+
+    def get_project_files(self, project_root: Path = None, file_type: str = None) -> List[Path]:
+        """Get all files in the project matching the search patterns."""
+        if not project_root:
+            project_root = self.find_project_root()
+            if not project_root:
+                return []
+        
+        files = []
+        patterns = self.config.code_analysis.search_patterns
+        
+        if file_type:
+            # Filter patterns by file type
+            patterns = [p for p in patterns if file_type in p]
+        
+        for pattern in patterns:
+            for file in project_root.rglob(pattern):
+                # Check if file should be excluded
+                should_exclude = False
+                for exclude_pattern in self.config.code_analysis.exclude_patterns:
+                    if fnmatch.fnmatch(str(file), exclude_pattern):
+                        should_exclude = True
+                        break
+                
+                if not should_exclude and file.is_file():
+                    # Check file size
+                    if file.stat().st_size <= self.config.code_analysis.max_file_size:
+                        files.append(file)
+        
+        return files
+
+    def get_project_structure(self, project_root: Path = None, max_depth: int = None) -> Dict[str, Any]:
+        """Get the structure of the project directory."""
+        if not project_root:
+            project_root = self.find_project_root()
+            if not project_root:
+                return {"error": "Project root not found"}
+        
+        if max_depth is None:
+            max_depth = self.config.code_analysis.max_search_depth
+        
+        def build_tree(path: Path, depth: int = 0) -> Dict[str, Any]:
+            if depth > max_depth:
+                return {"type": "truncated"}
+            
+            if path.is_file():
+                return {
+                    "type": "file",
+                    "name": path.name,
+                    "size": path.stat().st_size,
+                    "extension": path.suffix
+                }
+            
+            result = {
+                "type": "directory",
+                "name": path.name,
+                "children": {}
+            }
+            
+            try:
+                for item in path.iterdir():
+                    # Skip excluded patterns
+                    should_exclude = False
+                    for exclude_pattern in self.config.code_analysis.exclude_patterns:
+                        if fnmatch.fnmatch(str(item), exclude_pattern):
+                            should_exclude = True
+                            break
+                    
+                    if not should_exclude:
+                        result["children"][item.name] = build_tree(item, depth + 1)
+            except PermissionError:
+                result["error"] = "Permission denied"
+            
+            return result
+        
+        return build_tree(project_root)
     
     async def analyze_source_code(self, file_path: str, language: str = "auto") -> Dict[str, Any]:
         """Analyze source code file and extract comprehensive information."""
         try:
-            # Try different path resolutions
-            path = None
-            possible_paths = [
-                Path(file_path),  # Direct path
-                Path.cwd() / file_path,  # Relative to current working directory
-                Path("/workspace") / file_path,  # Common Docker workspace
-                Path("/app") / file_path,  # Common Docker app directory
-                Path("/code") / file_path,  # Common code directory
-            ]
-            
-            # Also try with common project root patterns
-            if "/" in file_path:
-                parts = file_path.split("/")
-                if len(parts) > 1:
-                    # Try with different root directories
-                    for root in ["/workspace", "/app", "/code", "/src", Path.cwd()]:
-                        possible_paths.append(Path(root) / file_path)
-                        # Try without first directory (e.g., "apps/remind-tools/src/app/app.ts" -> "remind-tools/src/app/app.ts")
-                        if len(parts) > 2:
-                            possible_paths.append(Path(root) / "/".join(parts[1:]))
-            
-            # Find the first existing path
-            for test_path in possible_paths:
-                if test_path.exists():
-                    path = test_path
-                    break
+            # First try to find the file in the project
+            project_root = self.find_project_root()
+            if project_root:
+                found_path = self.find_file_in_project(file_path, project_root)
+                if found_path:
+                    path = found_path
+                else:
+                    # If not found in project, try the old method
+                    path = None
+                    possible_paths = [
+                        Path(file_path),  # Direct path
+                        Path.cwd() / file_path,  # Relative to current working directory
+                        Path("/workspace") / file_path,  # Common Docker workspace
+                        Path("/app") / file_path,  # Common Docker app directory
+                        Path("/code") / file_path,  # Common Docker code directory
+                    ]
+                    
+                    # Also try with common project root patterns
+                    if "/" in file_path:
+                        parts = file_path.split("/")
+                        if len(parts) > 1:
+                            # Try with different root directories
+                            for root in ["/workspace", "/app", "/code", "/src", Path.cwd()]:
+                                possible_paths.append(Path(root) / file_path)
+                                # Try without first directory (e.g., "apps/remind-tools/src/app/app.ts" -> "remind-tools/src/app/app.ts")
+                                if len(parts) > 2:
+                                    possible_paths.append(Path(root) / "/".join(parts[1:]))
+                    
+                    # Find the first existing path
+                    for test_path in possible_paths:
+                        if test_path.exists():
+                            path = test_path
+                            break
+            else:
+                # Fallback to old method if no project root found
+                path = None
+                possible_paths = [
+                    Path(file_path),  # Direct path
+                    Path.cwd() / file_path,  # Relative to current working directory
+                    Path("/workspace") / file_path,  # Common Docker workspace
+                    Path("/app") / file_path,  # Common Docker app directory
+                    Path("/code") / file_path,  # Common Docker code directory
+                ]
+                
+                # Also try with common project root patterns
+                if "/" in file_path:
+                    parts = file_path.split("/")
+                    if len(parts) > 1:
+                        # Try with different root directories
+                        for root in ["/workspace", "/app", "/code", "/src", Path.cwd()]:
+                            possible_paths.append(Path(root) / file_path)
+                            # Try without first directory (e.g., "apps/remind-tools/src/app/app.ts" -> "remind-tools/src/app/app.ts")
+                            if len(parts) > 2:
+                                possible_paths.append(Path(root) / "/".join(parts[1:]))
+                
+                # Find the first existing path
+                for test_path in possible_paths:
+                    if test_path.exists():
+                        path = test_path
+                        break
             
             if path is None:
                 # If no path found, try to provide helpful error message
                 searched_paths = [str(p) for p in possible_paths[:10]]  # Limit to first 10 for readability
-                raise FileNotFoundError(f"File not found: {file_path}. Searched in: {', '.join(searched_paths)}")
+                project_info = f"Project root: {project_root}" if project_root else "No project root found"
+                raise FileNotFoundError(f"File not found: {file_path}. {project_info}. Searched in: {', '.join(searched_paths)}")
             
             with open(path, 'r', encoding='utf-8') as f:
                 code = f.read()
