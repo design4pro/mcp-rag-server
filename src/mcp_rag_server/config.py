@@ -20,7 +20,7 @@ class GeminiConfig(BaseSettings):
     temperature: float = Field(default=0.7, description="Temperature for generation")
     
     class Config:
-        env_prefix = "MCP_GEMINI_"
+        env_prefix = ""
 
 
 class QdrantConfig(BaseSettings):
@@ -33,7 +33,7 @@ class QdrantConfig(BaseSettings):
     distance_metric: str = Field(default="Cosine", description="Distance metric for vectors")
     
     class Config:
-        env_prefix = "MCP_QDRANT_"
+        env_prefix = ""
 
 
 class Mem0Config(BaseSettings):
@@ -60,7 +60,7 @@ class Mem0Config(BaseSettings):
     enable_memory_summarization: bool = Field(default=True, description="Enable memory summarization for long contexts")
     
     class Config:
-        env_prefix = "MCP_MEM0_"
+        env_prefix = ""
 
 
 class SessionConfig(BaseSettings):
@@ -72,7 +72,7 @@ class SessionConfig(BaseSettings):
     enable_tracking: bool = Field(default=True, description="Enable session tracking")
     
     class Config:
-        env_prefix = "MCP_SESSION_"
+        env_prefix = ""
 
 
 class PromptsConfig(BaseSettings):
@@ -105,7 +105,7 @@ class PromptsConfig(BaseSettings):
     ], description="Default prompt templates to include")
     
     class Config:
-        env_prefix = "MCP_PROMPTS_"
+        env_prefix = ""
 
 
 class HTTPIntegrationConfig(BaseSettings):
@@ -125,7 +125,7 @@ class HTTPIntegrationConfig(BaseSettings):
     user_agent: str = Field(default="MCP-RAG-Server/1.0", env="MCP_HTTP_USER_AGENT", description="HTTP User-Agent string")
     
     class Config:
-        env_prefix = "MCP_HTTP_"
+        env_prefix = ""
 
 
 class AdvancedFeaturesConfig(BaseSettings):
@@ -147,7 +147,7 @@ class AdvancedFeaturesConfig(BaseSettings):
     max_webhook_retries: int = Field(default=3, env="MCP_WEBHOOK_MAX_RETRIES", description="Maximum webhook retries")
     
     class Config:
-        env_prefix = "MCP_ADVANCED_"
+        env_prefix = ""
 
 
 class ServerConfig(BaseSettings):
@@ -159,7 +159,7 @@ class ServerConfig(BaseSettings):
     debug: bool = Field(default=False, env="MCP_DEBUG")
     
     class Config:
-        env_prefix = "MCP_"
+        env_prefix = ""
 
 
 class Config(BaseSettings):

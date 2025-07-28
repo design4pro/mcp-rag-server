@@ -138,6 +138,40 @@ class MemoryTools:
             logger.error(f"Error getting memory context: {e}")
             return {"success": False, "error": str(e)}
     
+    async def search_memories(
+        self, 
+        query: str, 
+        user_id: str, 
+        limit: int = 5, 
+        memory_type: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Search for relevant memories for a user."""
+        if not self.mem0_service:
+            return {"success": False, "error": "Mem0 service not initialized"}
+        
+        try:
+            # Validate input
+            if not user_id or not query:
+                return {"success": False, "error": "User ID and query are required"}
+            
+            # Use the mem0 service search_memories method
+            memories = await self.mem0_service.search_memories(
+                user_id, query, limit, memory_type
+            )
+            
+            return {
+                "success": True,
+                "memories": memories,
+                "user_id": user_id,
+                "query": query,
+                "count": len(memories),
+                "limit": limit,
+                "memory_type": memory_type
+            }
+        except Exception as e:
+            logger.error(f"Error searching memories: {e}")
+            return {"success": False, "error": str(e)}
+    
     async def get_user_session_info(self, user_id: str) -> Dict[str, Any]:
         """Get session information for a specific user."""
         if not self.mem0_service:
