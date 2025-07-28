@@ -63,6 +63,51 @@ class Mem0Config(BaseSettings):
         env_prefix = "MCP_MEM0_"
 
 
+class SessionConfig(BaseSettings):
+    """Configuration for session management."""
+    
+    timeout_hours: int = Field(default=24, env="MCP_SESSION_TIMEOUT_HOURS", description="Session timeout in hours")
+    max_sessions_per_user: int = Field(default=10, env="MCP_MAX_SESSIONS_PER_USER", description="Maximum sessions per user")
+    cleanup_interval_minutes: int = Field(default=5, description="Session cleanup interval in minutes")
+    enable_tracking: bool = Field(default=True, description="Enable session tracking")
+    
+    class Config:
+        env_prefix = "MCP_SESSION_"
+
+
+class PromptsConfig(BaseSettings):
+    """Configuration for MCP Prompts functionality."""
+    
+    # Enable/disable prompts functionality
+    enabled: bool = Field(default=True, env="MCP_PROMPTS_ENABLED", description="Enable MCP prompts functionality")
+    
+    # Prompt management settings
+    max_prompts_per_user: int = Field(default=50, description="Maximum custom prompts per user")
+    max_prompt_length: int = Field(default=10000, description="Maximum prompt content length")
+    enable_custom_prompts: bool = Field(default=True, description="Allow users to create custom prompts")
+    
+    # Code analysis settings
+    enable_code_analysis: bool = Field(default=True, description="Enable code analysis in prompts")
+    supported_languages: list = Field(default=["python", "javascript", "java", "rust", "go", "typescript"], 
+                                    description="Supported programming languages for analysis")
+    max_code_size: int = Field(default=50000, description="Maximum code size for analysis (characters)")
+    
+    # Prompt templates
+    default_templates: list = Field(default=[
+        "code_review",
+        "code_analysis", 
+        "architecture_review",
+        "security_audit",
+        "performance_analysis",
+        "documentation_generation",
+        "test_generation",
+        "refactoring_suggestions"
+    ], description="Default prompt templates to include")
+    
+    class Config:
+        env_prefix = "MCP_PROMPTS_"
+
+
 class ServerConfig(BaseSettings):
     """Configuration for MCP server."""
     
@@ -70,12 +115,6 @@ class ServerConfig(BaseSettings):
     port: int = Field(default=8000, env="MCP_SERVER_PORT")
     log_level: str = Field(default="INFO", env="MCP_LOG_LEVEL")
     debug: bool = Field(default=False, env="MCP_DEBUG")
-    
-    # Session management settings
-    session_timeout_hours: int = Field(default=24, description="Session timeout in hours")
-    max_sessions_per_user: int = Field(default=10, description="Maximum sessions per user")
-    session_cleanup_interval_minutes: int = Field(default=5, description="Session cleanup interval in minutes")
-    enable_session_tracking: bool = Field(default=True, description="Enable session tracking")
     
     class Config:
         env_prefix = "MCP_"
@@ -87,6 +126,8 @@ class Config(BaseSettings):
     gemini: GeminiConfig = Field(default_factory=GeminiConfig)
     qdrant: QdrantConfig = Field(default_factory=QdrantConfig)
     mem0: Mem0Config = Field(default_factory=Mem0Config)
+    session: SessionConfig = Field(default_factory=SessionConfig)
+    prompts: PromptsConfig = Field(default_factory=PromptsConfig)
     server: ServerConfig = Field(default_factory=ServerConfig)
     
     class Config:
