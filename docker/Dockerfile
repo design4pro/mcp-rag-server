@@ -45,6 +45,10 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 # Copy source code
 COPY src/ ./src/
 
+# Copy server entry points
+COPY src/run_server.py ./run_server.py
+COPY src/run_server_http.py ./run_server_http.py
+
 # Add src to Python path
 ENV PYTHONPATH=/app/src
 
