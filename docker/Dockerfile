@@ -1,40 +1,72 @@
-FROM python:3.11-slim
+# Multi-stage build for optimized image size
+FROM python:3.11-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    cargo \
+    && rm -rf /var/cache/apk/*
 
 # Set working directory
 WORKDIR /app
 
-# Add metadata
-LABEL org.opencontainers.image.title="MCP RAG Server"
-LABEL org.opencontainers.image.description="Production-ready MCP RAG Server with advanced AI reasoning, memory management, and comprehensive MCP integration"
-LABEL org.opencontainers.image.vendor="Design4Pro"
-LABEL org.opencontainers.image.source="https://github.com/design4pro/mcp-rag-server"
-LABEL org.opencontainers.image.licenses="MIT"
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-  curl \
-  && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first for better caching
+# Copy requirements for better caching
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Production stage
+FROM python:3.11-alpine AS production
+
+# Install runtime dependencies only
+RUN apk add --no-cache \
+    curl \
+    libgcc \
+    libstdc++ \
+    && rm -rf /var/cache/apk/*
+
+# Set working directory
+WORKDIR /app
+
+# Add metadata
+LABEL org.opencontainers.image.title="MCP RAG Server (Optimized)"
+LABEL org.opencontainers.image.description="Production-ready MCP RAG Server with advanced AI reasoning, memory management, and comprehensive MCP integration - Optimized for size"
+LABEL org.opencontainers.image.vendor="Design4Pro"
+LABEL org.opencontainers.image.source="https://github.com/design4pro/mcp-rag-server"
+LABEL org.opencontainers.image.licenses="MIT"
+
+# Copy Python packages from builder stage
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
 # Copy source code
 COPY src/ ./src/
-COPY src/run_server_http.py ./run_server_http.py
-COPY src/run_server.py ./run_server.py
+
+# Add src to Python path
+ENV PYTHONPATH=/app/src
 
 # Create directory for mem0 data
 RUN mkdir -p /app/mem0_data
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+# Change ownership of app directory
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
 
 # Expose port (will be overridden by environment variable)
 EXPOSE 8000
 
 # Health check using environment variable for port
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:${MCP_SERVER_PORT:-8000}/mcp/ || exit 1
+    CMD curl -f http://localhost:${MCP_SERVER_PORT:-8000}/mcp/ || exit 1
 
 # Run the server (use run_server.py for stdio communication)
 CMD ["python", "run_server.py"] 
