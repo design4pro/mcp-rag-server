@@ -115,14 +115,17 @@ class MCPRAGServer:
         
         # Document management tools
         @self.mcp.tool()
-        async def add_document(content: str, metadata: dict = None, user_id: str = "default") -> dict:
+        async def add_document(content: str, metadata: dict = None, user_id: str = None) -> dict:
             """Add a document to the RAG system."""
             try:
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
                 # Validate input
                 validated_input = validate_document_input({
                     "content": content,
                     "metadata": metadata,
-                    "user_id": user_id
+                    "user_id": effective_user_id
                 })
                 
                 if not self.document_tools:
@@ -141,13 +144,16 @@ class MCPRAGServer:
                 return create_error_response(e, "add_document")
         
         @self.mcp.tool()
-        async def delete_document(document_id: str, user_id: str = "default") -> dict:
+        async def delete_document(document_id: str, user_id: str = None) -> dict:
             """Delete a document from the RAG system."""
             try:
                 if not self.document_tools:
                     raise RuntimeError("Document tools not initialized")
                 
-                result = await self.document_tools.delete_document(document_id, user_id)
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
+                result = await self.document_tools.delete_document(document_id, effective_user_id)
                 return result
             except Exception as e:
                 return create_error_response(e, "delete_document")
@@ -218,10 +224,10 @@ class MCPRAGServer:
                 return create_error_response(e, "search_documents")
         
         @self.mcp.tool()
-        async def ask_question(question: str, user_id: str = "default", session_id: str = None, use_memory: bool = True) -> dict:
+        async def ask_question(question: str, user_id: str = None, session_id: str = None, use_memory: bool = True) -> dict:
             """Ask a question using RAG with optional memory context."""
             try:
-                # Validate input
+                # Validate input (validation will use configured default user_id if user_id is None)
                 validated_input = validate_question_input({
                     "question": question,
                     "user_id": user_id,
@@ -247,7 +253,7 @@ class MCPRAGServer:
         
         # Memory management tools
         @self.mcp.tool()
-        async def add_memory(content: str, memory_type: str = "conversation", user_id: str = "default", session_id: str = None) -> dict:
+        async def add_memory(content: str, memory_type: str = "conversation", user_id: str = None, session_id: str = None) -> dict:
             """Add a memory entry for a user."""
             try:
                 # Validate input
@@ -275,14 +281,17 @@ class MCPRAGServer:
                 return create_error_response(e, "add_memory")
         
         @self.mcp.tool()
-        async def search_memories(query: str, user_id: str = "default", limit: int = 5, memory_type: str = None) -> dict:
+        async def search_memories(query: str, user_id: str = None, limit: int = 5, memory_type: str = None) -> dict:
             """Search for relevant memories for a user."""
             try:
                 if not self.memory_tools:
                     raise RuntimeError("Memory tools not initialized")
                 
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
                 result = await self.memory_tools.search_memories(
-                    query, user_id, limit, memory_type
+                    query, effective_user_id, limit, memory_type
                 )
                 
                 return result
@@ -290,14 +299,17 @@ class MCPRAGServer:
                 return create_error_response(e, "search_memories")
         
         @self.mcp.tool()
-        async def get_user_memories(user_id: str = "default", limit: int = 50, memory_type: str = None) -> dict:
+        async def get_user_memories(user_id: str = None, limit: int = 50, memory_type: str = None) -> dict:
             """Get all memories for a user."""
             try:
                 if not self.memory_tools:
                     raise RuntimeError("Memory tools not initialized")
                 
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
                 result = await self.memory_tools.get_user_memories(
-                    user_id, limit, memory_type
+                    effective_user_id, limit, memory_type
                 )
                 
                 return result
@@ -306,13 +318,16 @@ class MCPRAGServer:
         
         # Session management tools
         @self.mcp.tool()
-        async def create_session(user_id: str = "default", session_name: str = None) -> dict:
+        async def create_session(user_id: str = None, session_name: str = None) -> dict:
             """Create a new session for a user."""
             try:
                 if not self.session_tools:
                     raise RuntimeError("Session tools not initialized")
                 
-                result = await self.session_tools.create_session(user_id, session_name)
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
+                result = await self.session_tools.create_session(effective_user_id, session_name)
                 return result
             except Exception as e:
                 return create_error_response(e, "create_session")
@@ -330,13 +345,16 @@ class MCPRAGServer:
                 return create_error_response(e, "get_session")
         
         @self.mcp.tool()
-        async def list_sessions(user_id: str = "default", limit: int = 10) -> dict:
+        async def list_sessions(user_id: str = None, limit: int = 10) -> dict:
             """List sessions for a user."""
             try:
                 if not self.session_tools:
                     raise RuntimeError("Session tools not initialized")
                 
-                result = await self.session_tools.list_sessions(user_id, limit)
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
+                result = await self.session_tools.list_sessions(effective_user_id, limit)
                 return result
             except Exception as e:
                 return create_error_response(e, "list_sessions")
@@ -370,14 +388,17 @@ class MCPRAGServer:
                 return create_error_response(e, "advanced_reasoning")
         
         @self.mcp.tool()
-        async def context_analysis(query: str, user_id: str = "default", additional_context: dict = None) -> dict:
+        async def context_analysis(query: str, user_id: str = None, additional_context: dict = None) -> dict:
             """Analyze context for a given query."""
             try:
                 if not self.ai_tools:
                     raise RuntimeError("AI tools not initialized")
                 
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
                 result = await self.ai_tools.context_analysis(
-                    query, user_id, additional_context
+                    query, effective_user_id, additional_context
                 )
                 
                 return result
@@ -502,25 +523,31 @@ class MCPRAGServer:
         
         # HTTP Integration Tools
         @self.mcp.tool()
-        async def fetch_web_content(url: str, user_id: str = "default", auto_add_to_rag: bool = True) -> dict:
+        async def fetch_web_content(url: str, user_id: str = None, auto_add_to_rag: bool = True) -> dict:
             """Fetch content from URL and optionally add to RAG system."""
             try:
                 if not self.http_tools:
                     raise RuntimeError("HTTP tools not initialized")
                 
-                result = await self.http_tools.fetch_web_content(url, user_id, auto_add_to_rag)
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
+                result = await self.http_tools.fetch_web_content(url, effective_user_id, auto_add_to_rag)
                 return result
             except Exception as e:
                 return create_error_response(e, "fetch_web_content")
         
         @self.mcp.tool()
-        async def call_external_api(endpoint: str, method: str = "GET", data: dict = None, headers: dict = None, user_id: str = "default") -> dict:
+        async def call_external_api(endpoint: str, method: str = "GET", data: dict = None, headers: dict = None, user_id: str = None) -> dict:
             """Call external API and optionally process response."""
             try:
                 if not self.http_tools:
                     raise RuntimeError("HTTP tools not initialized")
                 
-                result = await self.http_tools.call_external_api(endpoint, method, data, headers, user_id)
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
+                result = await self.http_tools.call_external_api(endpoint, method, data, headers, effective_user_id)
                 return result
             except Exception as e:
                 return create_error_response(e, "call_external_api")
@@ -539,13 +566,16 @@ class MCPRAGServer:
         
         # Advanced Features - Batch Processing
         @self.mcp.tool()
-        async def batch_add_documents(documents: list, user_id: str = "default", batch_size: int = 10, parallel_processing: bool = True) -> dict:
+        async def batch_add_documents(documents: list, user_id: str = None, batch_size: int = 10, parallel_processing: bool = True) -> dict:
             """Add multiple documents to RAG system in batch."""
             try:
                 if not self.advanced_features:
                     raise RuntimeError("Advanced features not initialized")
                 
-                result = await self.advanced_features.batch_add_documents(documents, user_id, batch_size, parallel_processing)
+                # Use configured default user_id if none provided
+                effective_user_id = user_id or config.mem0.default_user_id
+                
+                result = await self.advanced_features.batch_add_documents(documents, effective_user_id, batch_size, parallel_processing)
                 return result
             except Exception as e:
                 return create_error_response(e, "batch_add_documents")
