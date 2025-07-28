@@ -1,4 +1,17 @@
-# Docker Image Optimization Summary
+---
+title: docker-image-optimization-guide
+type: note
+permalink: docs/02-installation/docker-image-optimization-guide
+tags:
+- '[''docker'
+- optimization
+- image-size'
+- '''alpine'''
+- multi-stage-build
+- dependencies
+---
+
+# Docker Image Optimization Guide
 
 ## Overview
 
@@ -66,7 +79,6 @@ Created `src/mcp_rag_server/utils/text_splitter.py` with:
 
 ### Modified Files
 - `src/mcp_rag_server/services/document_processor.py` - Uses custom splitter
-- `pyproject.toml` - Updated dependencies (in requirements-optimized.txt)
 
 ## Testing Results
 
@@ -163,6 +175,14 @@ docker run -i --rm \
 - **Performance metrics** - Ensure optimizations don't impact performance
 - **Security updates** - Keep dependencies updated
 
+## Related Documentation
+
+- [[../01-architecture/system-architecture|System Architecture]]
+- [[installation-guide|Installation Guide]]
+- [[docker-port-mapping-and-healthcheck-guide|Docker Port Mapping and Healthcheck Guide]]
+- [[docker-registry-publishing-guide|Docker Registry Publishing Guide]]
+- [[../05-troubleshooting/troubleshooting-guide|Troubleshooting Guide]]
+
 ## Conclusion
 
 The Docker image optimization successfully achieved an **80% size reduction** from 3GB+ to 261MB while maintaining full functionality. The optimizations include:
@@ -173,4 +193,4 @@ The Docker image optimization successfully achieved an **80% size reduction** fr
 4. **Alpine Linux** - Smaller base image
 5. **Build context optimization** - Faster builds
 
-All functionality has been preserved and tested, making this optimization ready for production use. 
+All functionality has been preserved and tested, making this optimization ready for production use.
